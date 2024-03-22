@@ -7,11 +7,12 @@ npm run dev
 npm run deploy
 ```
 
+
 ## API Reference
 
 #### Create new Blog
 
-``http
+```http
   POST /api/v1/blog/
 ```
 
