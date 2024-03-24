@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { PrismaClient } from "@prisma/client/edge";
 import { withAccelerate } from "@prisma/extension-accelerate";
 import { decode, sign, verify } from 'hono/jwt'
+import { signinInput } from "@100xdevs/medium-common";
 export const userRouter = new Hono<{
 	Bindings: {
 		DATABASE_URL: string;
@@ -11,6 +12,12 @@ export const userRouter = new Hono<{
 //eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhZTljMTE1LTdmNDMtNGY5OS04YmExLTAyZjNjOTJmOTk3MSJ9.oLeaN0oZWIN0G0D4OXIyNycN9CauQP-qOR6s2Zkkuy8
 userRouter.post("/signup", async (c) => {
 	const body = await c.req.json();
+	const { success } = signinInput.safeParse(body);
+	if(!success){
+		return c.json({
+			message: "Inputs not correct";
+		})
+	}
 	const prisma = new PrismaClient({
 		datasourceUrl: c.env?.DATABASE_URL,
 	}).$extends(withAccelerate());
