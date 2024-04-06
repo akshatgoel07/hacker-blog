@@ -4,6 +4,7 @@ import { Hono } from "hono";
 import { decode, sign, verify } from 'hono/jwt'
 import { bookRouter } from "./routes/blog";
 import { userRouter } from "./routes/user";
+import { cors } from "hono/cors";
 
 
 const app = new Hono<{
@@ -12,7 +13,7 @@ const app = new Hono<{
 		JWT_SECRET: string;
 	};
 }>();
-
+app.use("/api/*", cors());
 app.route('/api/v1/blog', bookRouter);
-app.route('/api/v1', userRouter);
+app.route('/api/v1/user', userRouter);
 export default app;

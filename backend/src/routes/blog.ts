@@ -37,6 +37,7 @@ bookRouter.post('/', async (c) => {
 	}).$extends(withAccelerate());
 
 	const body = await c.req.json();
+	console.log("control reached after body")
 	const post = await prisma.post.create({
 		data: {
 			title: body.title,
@@ -56,7 +57,7 @@ bookRouter.put('/', async (c) => {
 	}).$extends(withAccelerate());
 
 	const body = await c.req.json();
-	prisma.post.update({
+	const post = await prisma.post.update({
 		where: {
 			id: body.id,
 			authorId: userId
@@ -67,7 +68,9 @@ bookRouter.put('/', async (c) => {
 		}
 	});
 
-	return c.text('updated post');
+	return c.json({
+        id: post.id
+    })
 });
 bookRouter.get('/bulk', async (c) => {
 
@@ -75,27 +78,57 @@ bookRouter.get('/bulk', async (c) => {
 		datasourceUrl: c.env?.DATABASE_URL	,
 	}).$extends(withAccelerate());
 	
-	const post = await prisma.post.findMany();
+	const post = await prisma.post.findMany({
+        select: {
+            content: true,
+            title: true,
+            id: true,
+            author: {
+                select: {
+                    name: true
+                }
+            }
+        }
+    });
 
-
-	return c.json(post);
+    return c.json({
+        post
+    })
 	
 })
 
 bookRouter.get('/:id', async (c) => {
-	const id = c.req.param('id');
-	const prisma = new PrismaClient({
-		datasourceUrl: c.env?.DATABASE_URL	,
-	}).$extends(withAccelerate());
-	
-	const post = await prisma.post.findUnique({
-		where: {
-			id
-		}
-	});
 
-	return c.json(post);
-	
+	const id = c.req.param("id");
+	const prisma = new PrismaClient({
+		datasourceUrl: c.env.DATABASE_URL,
+	  }).$extends(withAccelerate())
+	try {
+        const post = await prisma.post.findFirst({
+            where: {
+                id: id
+            },
+            select: {
+                id: true,
+                title: true,
+                content: true,
+                author: {
+                    select: {
+                        name: true
+                    }
+                }
+            }
+        })
+    
+        return c.json({
+            post
+        });
+    } catch(e) {
+        c.status(411); // 4
+        return c.json({
+            message: "Error while fetching blog post"
+        });
+	}
 })
 
 

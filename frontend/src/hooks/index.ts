@@ -23,7 +23,7 @@ export const useBlog = ({ id }: { id: string }) => {
             }
         })
             .then(response => {
-                setBlog(response.data.blog);
+                setBlog(response.data.post);
                 setLoading(false);
             })
     }, [id])
@@ -37,20 +37,23 @@ export const useBlog = ({ id }: { id: string }) => {
 export const useBlogs = () => {
     const [loading, setLoading] = useState(true);
     const [blogs, setBlogs] = useState<Blog[]>([]);
-
     useEffect(() => {
         axios.get(`${BACKEND_URL}/api/v1/blog/bulk`, {
             headers: {
-                Authorization: localStorage.getItem("token")
+                Authorization: localStorage.getItem("token")   
             }
+           
         })
             .then(response => {
-                setBlogs(response.data.blogs);
+                setBlogs(response.data.post);
                 setLoading(false);
+                console.log(response.data.post)
             })
+            // console.log(localStorage.getItem("token")) ;
     }, [])
 
     return {
+        
         loading,
         blogs
     }
