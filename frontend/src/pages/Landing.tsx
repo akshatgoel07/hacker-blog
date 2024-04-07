@@ -86,16 +86,14 @@ export const Landing = () => {
 						<div className="flex flex-col items-center justify-center space-y-4 text-center">
 							<div className="space-y-2">
 								<div className="inline-block rounded-lg px-3 py-1 text-sm">
-									 Features
+									Features
 								</div>
 								<h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">
-                                Faster iteration. More innovation.
-
+									Faster iteration. More innovation.
 								</h2>
 								<p className="max-w-[900px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
-                                Explore the Latest Trends, Tips, and Tricks in Technology and Development
-
-
+									Explore the Latest Trends, Tips, and Tricks
+									in Technology and Development
 								</p>
 							</div>
 						</div>
@@ -112,31 +110,35 @@ export const Landing = () => {
 									<li>
 										<div className="grid gap-1">
 											<h3 className="text-xl font-bold">
-                                            Streamlined Markdown Editing
+												Streamlined Markdown Editing
 											</h3>
 											<p className="text-gray-500 dark:text-gray-400">
-                                            Simplify Your Workflow with Intuitive Markdown Editing Tools
+												Simplify Your Workflow with
+												Intuitive Markdown Editing Tools
 											</p>
 										</div>
 									</li>
 									<li>
 										<div className="grid gap-1">
 											<h3 className="text-xl font-bold">
-                                            Intuitive WYSIWYG Experience
+												Intuitive WYSIWYG Experience
 											</h3>
 											<p className="text-gray-500 dark:text-gray-400">
-                                            Visualize Your Content Instantly with our User-Friendly Editor
+												Visualize Your Content Instantly
+												with our User-Friendly Editor
 											</p>
 										</div>
 									</li>
 									<li>
 										<div className="grid gap-1">
 											<h3 className="text-xl font-bold">
-												
-Seamless Integration and Collaboration
+												Seamless Integration and
+												Collaboration
 											</h3>
 											<p className="text-gray-500 dark:text-gray-400">
-                                            Enhance Teamwork and Efficiency with Integrated Collaboration Tools
+												Enhance Teamwork and Efficiency
+												with Integrated Collaboration
+												Tools
 											</p>
 										</div>
 									</li>
@@ -145,33 +147,33 @@ Seamless Integration and Collaboration
 						</div>
 					</div>
 				</section>
-                <section className="w-full py-12 md:py-24 lg:py-32">
-  <div className="container mx-auto grid items-center gap-6 px-4 md:px-6 lg:grid-cols-2 lg:gap-10">
-    <div className="space-y-2">
-      <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
-        Todo's  to improve the user experience
-      </h2>
-      <p className="max-w-[600px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
-      Add a text editor box, add search parameter, add features like Bookmarks and recommedation
-      </p>
-    </div>
-    <div className="flex space-x-4 lg:justify-end">
-      <a
-        className="inline-flex h-10 items-center justify-center rounded-md bg-gray-900 px-8 text-sm font-medium text-gray-50 shadow transition-colors hover:bg-gray-900/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-300"
-        href="mailto:akshathg7@gmail.com"
-      >
-        Contact Creator
-      </a>
-      <a
-        className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 border-gray-200 bg-white px-8 text-sm font-medium shadow-sm transition-colors hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-300"
-        href="mailto:akshathg7@gmail.com"
-      >
-       Suggestions
-      </a>
-    </div>
-  </div>
-</section>
-
+				<section className="w-full py-12 md:py-24 lg:py-32">
+					<div className="container mx-auto grid items-center gap-6 px-4 md:px-6 lg:grid-cols-2 lg:gap-10">
+						<div className="space-y-2">
+							<h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
+								Todo's to improve the user experience
+							</h2>
+							<p className="max-w-[600px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
+								Add a text editor box, add search parameter, add
+								features like Bookmarks and recommedation
+							</p>
+						</div>
+						<div className="flex space-x-4 lg:justify-end">
+							<a
+								className="inline-flex h-10 items-center justify-center rounded-md bg-gray-900 px-8 text-sm font-medium text-gray-50 shadow transition-colors hover:bg-gray-900/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-300"
+								href="mailto:akshathg7@gmail.com"
+							>
+								Contact Creator
+							</a>
+							<a
+								className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-white px-8 text-sm font-medium shadow-sm transition-colors hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-300"
+								href="mailto:akshathg7@gmail.com"
+							>
+								Suggestions
+							</a>
+						</div>
+					</div>
+				</section>
 			</main>
 			<footer className="flex flex-col gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t">
 				<p className="text-xs text-gray-500 dark:text-gray-400">
