@@ -6,7 +6,7 @@ export const Landing = () => {
 		<div className="flex flex-col min-h-[100dvh]">
 			<header className="px-4 lg:px-20 h-14 flex items-center">
 				<a className="flex items-center justify-center" href="#">
-					<MountainIcon className="h-6 w-6" />
+					<MountainIcon />
 					<span className="sr-only">Mac studio</span>
 				</a>
 				<nav className="ml-auto flex gap-4 sm:gap-6">
