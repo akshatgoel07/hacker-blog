@@ -7,10 +7,10 @@ export const Quote = () => {
                    Don't want to sign up? Use Demo account in Sign In!
                 </div>
                 <div className="max-w-md text-xl font-semibold text-left mt-4">
-                demo@akshat.com
+               akshat@email.com
                 </div>
                 <div className="max-w-md text-sm font-light text-slate-400">
-                reactvitets
+               akshatgoel
                 </div>
             </div>
         </div>

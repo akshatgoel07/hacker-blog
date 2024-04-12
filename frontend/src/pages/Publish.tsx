@@ -4,6 +4,7 @@ import { BACKEND_URL } from "../config";
 import { useNavigate } from "react-router-dom";
 import { ChangeEvent, useState } from "react";
 
+ 
 export const Publish = () => {
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
@@ -36,9 +37,9 @@ export const Publish = () => {
 </button>
             </div>
         </div>
+        
     </div>
 }
-
 
 function TextEditor({ onChange }: {onChange: (e: ChangeEvent<HTMLTextAreaElement>) => void}) {
     return <div className="mt-2">
