@@ -2,6 +2,10 @@
 
 Hacker Blog is full-stack application designed to allow developers to create and grow their own developer blogs, newsletters, or team engineering blogs effortlessly.
 
+## Screenshots 
+![Screenshot 1](./screenshots/one.jpg)
+![Screenshot 1](./screenshots/two.jpg)
+![Screenshot 1](./screenshots/three.jpg)
 ## Installation and Setup
 
 ### Frontend
