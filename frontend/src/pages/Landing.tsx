@@ -10,7 +10,6 @@ export const Landing = () => {
 					<span className="sr-only">Mac studio</span>
 				</a>
 				<nav className="ml-auto flex gap-4 sm:gap-6">
-					
 					<a
 						className="text-sm font-medium hover:underline underline-offset-4"
 						href="https://www.linkedin.com/in/akshatgoel7/"
@@ -27,7 +26,7 @@ export const Landing = () => {
 					</a>
 					<a
 						className="text-sm font-medium hover:underline underline-offset-4"
-						href="https://akshatgoel0.vercel.app/"
+						href="https://akshatgoel.com/"
 						target="_blank"
 					>
 						Portfolio
@@ -74,13 +73,14 @@ export const Landing = () => {
 									</a> */}
 									<Link
 										className="inline-flex h-10 items-center justify-center rounded-md bg-gray-900 px-8 text-sm font-medium text-gray-50 shadow transition-colors hover:bg-gray-900/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950 disabled:pointer-events-none disabled:opacity-50 dark:bg-gray-50 dark:text-gray-900 dark:hover:bg-gray-50/90 dark:focus-visible:ring-gray-300"
-										to= "/signin">
+										to="/signin"
+									>
 										Signup
 									</Link>
 									<Link
 										className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-white px-8 text-sm font-medium shadow-sm transition-colors hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950 disabled:pointer-events-none disabled:opacity-50 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-800 dark:text-gray-50 dark:focus-visible:ring-gray-300"
-										to= '/signin'>
-									
+										to="/signin"
+									>
 										LogIn
 									</Link>
 								</div>
