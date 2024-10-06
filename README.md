@@ -2,10 +2,10 @@
 
 Hacker Blog is full-stack application designed to allow developers to create and grow their own developer blogs, newsletters, or team engineering blogs effortlessly.
 
-## Screenshots 
-![Screenshot 1](./screenshots/one.jpg)
-![Screenshot 1](./screenshots/two.jpg)
-![Screenshot 1](./screenshots/three.jpg)
+### Todo
+1. Adding OAuth/Google 
+
+
 ## Installation and Setup
 
 ### Frontend
@@ -23,11 +23,10 @@ The backend is hosted on Cloudflare. To run it locally:
 1. Deploy the backend folder on Cloudflare.
 2. Update the backend URL in the `config.ts` file of the frontend.
 
-## Tech Stack ⚙️
+## Tech Stack ⚙
 
 ### Frontend:
 - React
-- Vite
 - TypeScript
 
 ### Backend:
@@ -38,14 +37,9 @@ The backend is hosted on Cloudflare. To run it locally:
 - PostgreSQL Database
 - JWT for Authentication
 
-## Features ✨
-
-- Easy blog creation and management.
-- Community engagement tools for fostering discussions.
-- Scalable backend infrastructure on Cloudflare.
-- Authentication using JWT tokens.
-
-
 ## Contact Information 📧
-
 For any questions, feedback, or support requests, feel free to reach out to [akshathg7@gmail.com](mailto:akshathg7@gmail.com) 📧
+
+
+## Screenshots 
+![Screenshot 1](./screenshots/one.jpg)
