@@ -1,4 +1,4 @@
-import { Sparkles, Code, Palette, Clock, Command, Feather } from "lucide-react";
+import { Sparkles, Code, Clock, Command, Feather } from "lucide-react";
 
 interface Feature {
 	id: number;
