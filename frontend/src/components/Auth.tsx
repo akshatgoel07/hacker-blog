@@ -1,4 +1,4 @@
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 // import { SignupInput } from "@100xdevs/medium-common";
 import axios from "axios";
@@ -12,6 +12,13 @@ export const Auth = ({ type }: { type: "signup" | "signin" }) => {
 		email: "",
 		password: "",
 	});
+
+	useEffect(() => {
+		const token = localStorage.getItem("token");
+		if (token) {
+			navigate("/blogs");
+		}
+	}, [navigate]);
 
 	async function sendRequest() {
 		try {
