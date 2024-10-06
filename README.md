@@ -3,7 +3,11 @@
 Hacker Blog is full-stack application designed to allow developers to create and grow their own developer blogs, newsletters, or team engineering blogs effortlessly.
 
 ### Todo
-1. Adding OAuth/Google 
+- [ ] Adding OAuth/Google
+- [ ] Name not storing in backend when blogs are published
+- [ ] Save and retrieve date in posts
+- [ ] Add proper formating in blogs
+- [ ] Add related blogs under each post
 
 
 ## Installation and Setup
