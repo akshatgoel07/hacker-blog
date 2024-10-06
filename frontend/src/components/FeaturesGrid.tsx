@@ -18,13 +18,6 @@ const FeaturesData: Feature[] = [
 		icon: <Sparkles size={iconSize} />,
 	},
 	{
-		id: 2,
-		name: "Customizable",
-		description:
-			"Customize the look and feel of SyntaxUI components to match your brand and design.",
-		icon: <Palette size={iconSize} />,
-	},
-	{
 		id: 3,
 		name: "Developer-Friendly",
 		description:
