@@ -1,12 +1,4 @@
-import { useNavigate } from "react-router-dom";
-
 const Navbar = () => {
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/");
-  };
   return (
     <div>
       <header className="px-4 lg:px-20 h-14 flex items-center">

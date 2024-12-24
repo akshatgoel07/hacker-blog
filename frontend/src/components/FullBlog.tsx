@@ -2,7 +2,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Blog } from "../hooks";
 import { Appbar } from "./Appbar";
-import { Avatar } from "./BlogCard";
+
 import rehypeHighlight from "rehype-highlight";
 // import "highlight.js/styles/github-dark.css";
 // import "highlight.js/styles/default.css";
