@@ -3,6 +3,7 @@ import { PrismaClient } from "@prisma/client/edge";
 import { withAccelerate } from "@prisma/extension-accelerate";
 import { decode, sign, verify } from "hono/jwt";
 import { signupInput, signinInput } from "@100xdevs/medium-common";
+import { authMiddleware } from "../middleware/middleware";
 
 export const userRouter = new Hono<{
   Bindings: {
@@ -14,24 +15,7 @@ export const userRouter = new Hono<{
   };
 }>();
 
-// Authentication Middleware
-userRouter.use("/*", async (c, next) => {
-  const authHeader = c.req.header("authorization") || "";
-  try {
-    const user = await verify(authHeader, c.env.JWT_SECRET);
-    if (user && typeof user.id === "string") {
-      // Ensure user.id exists and is a string
-      c.set("userId", user.id);
-      await next();
-    } else {
-      c.status(403);
-      return c.json({ message: "You are not logged in or token is invalid" });
-    }
-  } catch (e) {
-    c.status(403);
-    return c.json({ message: "Authentication failed" });
-  }
-});
+// Define Authentication Middleware
 
 userRouter.post("/signup", async (c) => {
   const body = await c.req.json();
@@ -142,7 +126,8 @@ userRouter.post("/signin", async (c) => {
   }
 });
 
-userRouter.get("/me", async (c) => {
+// Apply middleware specifically to routes that need it
+userRouter.get("/me", authMiddleware, async (c) => {
   const userId = c.get("userId");
   const prisma = new PrismaClient({
     datasourceUrl: c.env?.DATABASE_URL,
@@ -173,8 +158,8 @@ userRouter.get("/me", async (c) => {
   }
 });
 
-// Add PUT route for updating profile
-userRouter.put("/me", async (c) => {
+// Apply middleware specifically to routes that need it
+userRouter.put("/me", authMiddleware, async (c) => {
   const userId = c.get("userId");
   const body = await c.req.json();
 
