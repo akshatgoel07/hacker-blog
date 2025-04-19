@@ -9,7 +9,29 @@ export const userRouter = new Hono<{
     DATABASE_URL: string;
     JWT_SECRET: string;
   };
+  Variables: {
+    userId: string;
+  };
 }>();
+
+// Authentication Middleware
+userRouter.use("/*", async (c, next) => {
+  const authHeader = c.req.header("authorization") || "";
+  try {
+    const user = await verify(authHeader, c.env.JWT_SECRET);
+    if (user && typeof user.id === "string") {
+      // Ensure user.id exists and is a string
+      c.set("userId", user.id);
+      await next();
+    } else {
+      c.status(403);
+      return c.json({ message: "You are not logged in or token is invalid" });
+    }
+  } catch (e) {
+    c.status(403);
+    return c.json({ message: "Authentication failed" });
+  }
+});
 
 userRouter.post("/signup", async (c) => {
   const body = await c.req.json();
@@ -117,5 +139,79 @@ userRouter.post("/signin", async (c) => {
   } catch (e) {
     c.status(500);
     return c.json({ message: "Internal server error" });
+  }
+});
+
+userRouter.get("/me", async (c) => {
+  const userId = c.get("userId");
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env?.DATABASE_URL,
+  }).$extends(withAccelerate());
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+      },
+    });
+
+    if (!user) {
+      c.status(404);
+      return c.json({ message: "User not found" });
+    }
+
+    return c.json(user);
+  } catch (e) {
+    console.error("Error fetching user profile:", e);
+    c.status(500);
+    return c.json({ message: "Error fetching profile" });
+  }
+});
+
+// Add PUT route for updating profile
+userRouter.put("/me", async (c) => {
+  const userId = c.get("userId");
+  const body = await c.req.json();
+
+  // Validate input
+  if (
+    !body.name ||
+    typeof body.name !== "string" ||
+    body.name.trim().length === 0
+  ) {
+    c.status(400);
+    return c.json({ message: "Name is required and cannot be empty" });
+  }
+
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env?.DATABASE_URL,
+  }).$extends(withAccelerate());
+
+  try {
+    const updatedUser = await prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        name: body.name.trim(), // Update the name
+      },
+      select: {
+        // Return updated profile info (excluding password)
+        id: true,
+        email: true,
+        name: true,
+      },
+    });
+
+    return c.json(updatedUser);
+  } catch (e) {
+    console.error("Error updating user profile:", e);
+    c.status(500);
+    return c.json({ message: "Error updating profile" });
   }
 });
