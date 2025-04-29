@@ -37,6 +37,8 @@ export const ProfilePage = () => {
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [profileEmail, setProfileEmail] = useState<string>("");
+  const [userId, setUserId] = useState<string>("");
+  const [userBlogs, setUserBlogs] = useState<any>([]);
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
@@ -44,35 +46,62 @@ export const ProfilePage = () => {
     mode: "onChange",
   });
 
-  // Populate form when we load
-  useEffect(() => {
-    const fetchProfile = async () => {
-      setLoading(true);
-      setFetchError(null);
-
-      const token = localStorage.getItem("token");
-      if (!token) {
-        setFetchError("You must be logged in.");
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const { data } = await axios.get(`${BACKEND_URL}/api/v1/user/me`, {
-          headers: { Authorization: token },
+  const fetchBlogsForUser = async () => {
+    try {
+      if (!userId) {
+        toast({
+          title: "User not found",
+          description: "Please try again later.",
+          variant: "destructive",
         });
-        form.reset({ name: data.name });
-        setProfileEmail(data.email);
-      } catch (err) {
-        console.error(err);
-        setFetchError("Could not load your profile.");
-      } finally {
-        setLoading(false);
       }
-    };
+      const blogs = await axios.get(
+        `${BACKEND_URL}/api/v1/blog/get-blogs-for-user/${userId}`,
+        { headers: { Authorization: localStorage.getItem("token") || "" } },
+      );
 
+      console.log(blogs.data.posts, "blogs for user");
+      setUserBlogs(blogs.data.posts);
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: "Failed to load blogs",
+        description: "Please try again later.",
+        variant: "destructive",
+      });
+    }
+  };
+  const fetchProfile = async () => {
+    setLoading(true);
+    setFetchError(null);
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setFetchError("You must be logged in.");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const { data } = await axios.get(`${BACKEND_URL}/api/v1/user/me`, {
+        headers: { Authorization: token },
+      });
+      setUserId(data.id);
+      console.log(data.id, "data id");
+      form.reset({ name: data.name });
+      setProfileEmail(data.email);
+    } catch (err) {
+      console.error(err);
+      setFetchError("Could not load your profile.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchProfile();
-  }, [form]);
+    fetchBlogsForUser();
+  }, []);
 
   const onSubmit = async (values: ProfileFormValues) => {
     const token = localStorage.getItem("token");

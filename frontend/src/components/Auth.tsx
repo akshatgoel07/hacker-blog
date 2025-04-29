@@ -7,14 +7,14 @@ export const Auth = ({ type }: { type: "signup" | "signin" }) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [postInputs, setPostInputs] = useState({
-    name: "",
+    username: "",
     email: "",
     password: "",
   });
   const [errors, setErrors] = useState({
     email: "",
     password: "",
-    name: "",
+    username: "",
   });
 
   const validateEmail = (email: string) => {
@@ -41,16 +41,20 @@ export const Auth = ({ type }: { type: "signup" | "signin" }) => {
   const validateForm = () => {
     const emailError = validateEmail(postInputs.email);
     const passwordError = validatePassword(postInputs.password);
-    const nameError =
-      type === "signup" && !postInputs.name.trim() ? "Name is required" : "";
+    const usernameError =
+      type === "signup" && !postInputs.username.trim()
+        ? "Username is required"
+        : "";
 
     setErrors({
       email: emailError,
       password: passwordError,
-      name: nameError,
+      username: usernameError,
     });
 
-    return !emailError && !passwordError && (!nameError || type !== "signup");
+    return (
+      !emailError && !passwordError && (!usernameError || type !== "signup")
+    );
   };
 
   const isFormValid = () => {
@@ -58,7 +62,7 @@ export const Auth = ({ type }: { type: "signup" | "signin" }) => {
       return (
         postInputs.email.trim() &&
         postInputs.password.trim() &&
-        postInputs.name.trim()
+        postInputs.username.trim()
       );
     }
     return postInputs.email.trim() && postInputs.password.trim();
@@ -123,16 +127,16 @@ export const Auth = ({ type }: { type: "signup" | "signin" }) => {
           <div className="pt-8">
             {type === "signup" && (
               <LabelledInput
-                label="Name"
-                placeholder="Akshat goel..."
+                label="Username"
+                placeholder="Enter your username..."
                 onChange={(e) => {
                   setPostInputs({
                     ...postInputs,
-                    name: e.target.value,
+                    username: e.target.value,
                   });
-                  setErrors({ ...errors, name: "" });
+                  setErrors({ ...errors, username: "" });
                 }}
-                error={errors.name}
+                error={errors.username}
               />
             )}
             <LabelledInput
