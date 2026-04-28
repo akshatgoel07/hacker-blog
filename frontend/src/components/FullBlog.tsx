@@ -1,6 +1,7 @@
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { Blog } from "../hooks";
+import { Link } from "react-router-dom";
+import { Blog, useRelatedBlogs } from "../hooks";
 import { Appbar } from "./Appbar";
 import { formatPublishedDate } from "../lib/date";
 
@@ -9,6 +10,7 @@ import rehypeHighlight from "rehype-highlight";
 // import "highlight.js/styles/default.css";
 
 export const FullBlog = ({ blog }: { blog: Blog }) => {
+  const { related } = useRelatedBlogs({ id: String(blog.id) });
   return (
     <div>
       <Appbar />
@@ -76,20 +78,31 @@ export const FullBlog = ({ blog }: { blog: Blog }) => {
               </ReactMarkdown>
             </div>
           </div>
-          {/* <div className="col-span-4">
-            <div className="text-slate-600 text-lg">Author</div>
-            <div className="flex w-full">
-              <div className="pr-4 flex flex-col justify-center">
-                <Avatar size="small" name={blog?.author?.name || "Anonymous"} />
+          {related.length > 0 && (
+            <div className="mt-12 border-t pt-6">
+              <div className="text-base font-medium mb-3 text-black/80">
+                Related posts
               </div>
-              <div>
-                <div className="text-base font-md">
-                  {blog.author.name || "Anonymous"}
-                </div>
-                <div className="pt-2 text-slate-500"></div>
-              </div>
+              <ul className="space-y-3">
+                {related.map((r) => (
+                  <li key={r.id}>
+                    <Link
+                      to={`/blog/${r.id}`}
+                      className="block group"
+                    >
+                      <div className="text-sm font-medium capitalize group-hover:underline">
+                        {r.title}
+                      </div>
+                      <div className="text-xs text-slate-500">
+                        {r.author?.name ? `By ${r.author.name} · ` : ""}
+                        {formatPublishedDate(r.createdAt)}
+                      </div>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             </div>
-          </div> */}
+          )}
         </div>
       </div>
     </div>

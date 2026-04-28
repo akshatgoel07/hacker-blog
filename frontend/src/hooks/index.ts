@@ -35,6 +35,27 @@ export const useBlog = ({ id }: { id: string }) => {
     }
 
 }
+export const useRelatedBlogs = ({ id }: { id: string }) => {
+    const [loading, setLoading] = useState(true);
+    const [related, setRelated] = useState<Blog[]>([]);
+
+    useEffect(() => {
+        if (!id) return;
+        axios.get(`${BACKEND_URL}/api/v1/blog/related/${id}`, {
+            headers: {
+                Authorization: localStorage.getItem("token")
+            }
+        })
+            .then(response => {
+                setRelated(response.data.posts || []);
+                setLoading(false);
+            })
+            .catch(() => setLoading(false));
+    }, [id]);
+
+    return { loading, related };
+}
+
 export const useBlogs = () => {
     const [loading, setLoading] = useState(true);
     const [blogs, setBlogs] = useState<Blog[]>([]);

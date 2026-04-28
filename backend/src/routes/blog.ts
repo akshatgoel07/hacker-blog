@@ -99,6 +99,33 @@ bookRouter.get("/bulk", async (c) => {
   });
 });
 
+bookRouter.get("/related/:id", async (c) => {
+  const id = c.req.param("id");
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.DATABASE_URL,
+  }).$extends(withAccelerate());
+  try {
+    const posts = await prisma.post.findMany({
+      where: {
+        NOT: { id },
+      },
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        createdAt: true,
+        author: { select: { name: true } },
+      },
+      orderBy: { createdAt: "desc" },
+      take: 3,
+    });
+    return c.json({ posts });
+  } catch (e) {
+    c.status(500);
+    return c.json({ message: "Error while fetching related posts" });
+  }
+});
+
 bookRouter.get("/:id", async (c) => {
   const id = c.req.param("id");
   const prisma = new PrismaClient({
