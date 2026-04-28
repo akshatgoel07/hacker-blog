@@ -21,7 +21,7 @@ bookRouter.use("/*", async (c, next) => {
     return c.json({ error: "unauthorized" });
   }
   const token = jwt;
-  const payload = await verify(token, c.env.JWT_SECRET);
+  const payload = await verify(token, c.env.JWT_SECRET, "HS256");
   if (!payload) {
     c.status(401);
     return c.json({ error: "unauthorized" });

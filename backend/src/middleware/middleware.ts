@@ -3,7 +3,7 @@ import { verify } from "hono/jwt";
 export const authMiddleware = async (c: any, next: any) => {
   const authHeader = c.req.header("authorization") || "";
   try {
-    const user = await verify(authHeader, c.env.JWT_SECRET);
+    const user = await verify(authHeader, c.env.JWT_SECRET, "HS256");
     if (user && typeof user.id === "string") {
       c.set("userId", user.id);
       await next();
