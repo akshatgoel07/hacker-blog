@@ -2,6 +2,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Blog } from "../hooks";
 import { Appbar } from "./Appbar";
+import { formatPublishedDate } from "../lib/date";
 
 import rehypeHighlight from "rehype-highlight";
 // import "highlight.js/styles/github-dark.css";
@@ -15,7 +16,10 @@ export const FullBlog = ({ blog }: { blog: Blog }) => {
         <div className="px-20 w-full max-w-4xl py-4 border rounded-md bg overflow-hidden">
           <div className="">
             <div className="text-xl font-normal capitalize">{blog.title}</div>
-            <div className="text-slate-500 pt-2 text-sm">July 2024</div>
+            <div className="text-slate-500 pt-2 text-sm">
+              {blog.author?.name ? `By ${blog.author.name} · ` : ""}
+              {formatPublishedDate(blog.createdAt)}
+            </div>
             <div className="pt-4 prose prose-sm sm:prose lg:prose-lg xl:prose-xl max-w-none">
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}

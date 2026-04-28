@@ -4,8 +4,7 @@ Hacker Blog is full-stack application designed to allow developers to create and
 
 ### Todo
 - [ ] Adding OAuth/Google
-- [ ] Name not storing in backend when blogs are published
-- [ ] Save and retrieve date in posts
+- [x] Save and retrieve date in posts
 - [x] Add proper formating in blogs
 - [ ] Add related blogs under each post
 

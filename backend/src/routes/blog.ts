@@ -82,11 +82,15 @@ bookRouter.get("/bulk", async (c) => {
       content: true,
       title: true,
       id: true,
+      createdAt: true,
       author: {
         select: {
           name: true,
         },
       },
+    },
+    orderBy: {
+      createdAt: "desc",
     },
   });
 
@@ -109,6 +113,7 @@ bookRouter.get("/:id", async (c) => {
         id: true,
         title: true,
         content: true,
+        createdAt: true,
         author: {
           select: {
             name: true,
@@ -142,11 +147,15 @@ bookRouter.get("/get-blogs-for-user/:userId", async (c) => {
         id: true,
         title: true,
         content: true,
+        createdAt: true,
         author: {
           select: {
             name: true,
           },
         },
+      },
+      orderBy: {
+        createdAt: "desc",
       },
     });
 
