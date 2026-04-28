@@ -1,13 +1,18 @@
 import { Link, useNavigate } from "react-router-dom";
-import Hlogo from "../assets/hlogo.svg";
-import { Avatar, AvatarFallback } from "./ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { Button } from "./ui/button";
+
+const todaysDate = () =>
+  new Date().toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
 
 export const Appbar = () => {
   const navigate = useNavigate();
@@ -18,33 +23,56 @@ export const Appbar = () => {
   };
 
   return (
-    <div className="border-b flex justify-between items-center px-4 md:px-8 lg:px-32 py-4">
-      <Link to={"/blogs"} className="flex items-center gap-2 cursor-pointer">
-        <img src={Hlogo} alt="Logo" />
-        <span className="font-medium">Hacker Blog</span>
-      </Link>
-
-      <div className="flex items-center gap-4">
-        <Link to={`/publish`}>
-          <Button variant="default" size="sm">
-            Write
-          </Button>
+    <header className="bg-parchment-200 border-b border-ink">
+      <div className="max-w-6xl mx-auto px-4 md:px-8 pt-6 pb-3">
+        <div className="flex items-center justify-between text-[11px] font-smallcaps text-ink-soft tracking-widest">
+          <span>Vol. MMXXVI · No. {(new Date().getDate()).toString().padStart(2, "0")}</span>
+          <span className="hidden md:inline">"All the code that's fit to print"</span>
+          <span>Price: Free</span>
+        </div>
+        <hr className="news-rule-thin my-2" />
+        <Link to="/blogs" className="block text-center select-none">
+          <h1 className="font-blackletter text-5xl md:text-7xl text-ink leading-none">
+            The Hacker Blog
+          </h1>
         </Link>
-
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Avatar className="h-8 w-8 cursor-pointer hover:opacity-80 transition-opacity">
-              <AvatarFallback>AK</AvatarFallback>
-            </Avatar>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => navigate("/profile")}>
-              My Profile
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <hr className="news-rule my-3" />
+        <div className="flex items-center justify-between text-[12px] font-smallcaps text-ink-soft">
+          <span className="hidden sm:inline">{todaysDate()}</span>
+          <nav className="flex items-center gap-5">
+            <Link to="/blogs" className="hover:underline underline-offset-4 decoration-1">
+              Front Page
+            </Link>
+            <Link to="/publish" className="hover:underline underline-offset-4 decoration-1">
+              Submit a Story
+            </Link>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="hover:underline underline-offset-4 decoration-1 cursor-pointer">
+                  The Editor
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                className="bg-parchment-100 border-ink rounded-none font-serif"
+              >
+                <DropdownMenuItem
+                  className="rounded-none focus:bg-parchment-300"
+                  onClick={() => navigate("/profile")}
+                >
+                  My Desk
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="rounded-none focus:bg-parchment-300"
+                  onClick={handleLogout}
+                >
+                  Sign Off
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </nav>
+        </div>
       </div>
-    </div>
+    </header>
   );
 };
