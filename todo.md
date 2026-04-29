@@ -174,8 +174,14 @@ expiry, CORS is permissive, no rate limiting.
 - [x] **`.env.example` files** — Backend + frontend, with placeholder values and
       one-line comments. README points to them.
       *Done as part of P0.4 (move secrets out of git).*
-- [ ] **GitHub Actions** — `.github/workflows/ci.yml`: typecheck, lint, build for
+- [x] **GitHub Actions** — `.github/workflows/ci.yml`: typecheck, lint, build for
       both `frontend` and `backend` on PR + push to main.
+      *Two jobs (`frontend`, `backend`), Node 20, npm cache. Frontend
+      runs `tsc --noEmit` + `vite build`; backend runs `tsc --noEmit`.
+      Picked up a real type fix in `password.ts` (Uint8Array →
+      BufferSource cast for the strict @cloudflare/workers-types
+      checking) and added `skipLibCheck` + `noEmit` to backend
+      tsconfig. Lint not yet -- backend has no eslint config.*
 - [ ] **Husky + lint-staged** — Pre-commit: `tsc --noEmit` on staged files.
 - [ ] **Vitest + tests** — Backend: route-level tests with a mocked Prisma client.
       Frontend: smoke tests for hooks. Aim for 5–10 starter tests, not coverage.
