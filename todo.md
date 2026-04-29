@@ -76,8 +76,14 @@ expiry, CORS is permissive, no rate limiting.
       requests, cache across navigations.
 - [ ] **Edge cache GET endpoints** — Wrap public GETs in `Cache.match` /
       `Cache.put` with a 60s TTL. Bust on POST/PUT.
-- [ ] **DB indexes** — Add `@@index([createdAt(sort: Desc)])` and
+- [x] **DB indexes** — Add `@@index([createdAt(sort: Desc)])` and
       `@@index([authorId, createdAt])` on `Post`. Migration only; safe additive.
+      *Migration `20260429100158_add_post_indexes` created with
+      `--create-only` (per loop.md rule 4 — no remote schema changes
+      from the loop). Indexes: `(createdAt DESC, id DESC)` for the
+      cursor pagination and `(authorId, createdAt DESC)` for
+      `/get-blogs-for-user`. **User must run `npx prisma migrate
+      deploy` (or `prisma migrate dev`) in `backend/` to apply.***
 - [ ] **Code-split editor route** — `Publish.tsx` pulls in
       `react-markdown-editor-lite` + `markdown-it`; lazy-load via
       `React.lazy` + `Suspense`. Saves ~150KB from the initial bundle.
