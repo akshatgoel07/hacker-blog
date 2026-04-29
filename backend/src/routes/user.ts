@@ -67,7 +67,11 @@ userRouter.post("/signup", async (c) => {
         email: body.email,
       },
     });
-    const token = await sign({ id: user.id }, c.env.JWT_SECRET);
+    const now = Math.floor(Date.now() / 1000);
+    const token = await sign(
+      { id: user.id, iat: now, exp: now + 60 * 60 * 24 },
+      c.env.JWT_SECRET,
+    );
     return c.json(token);
   } catch (e) {
     c.status(411);
@@ -127,7 +131,11 @@ userRouter.post("/signin", async (c) => {
       });
     }
 
-    const jwt = await sign({ id: user.id }, c.env.JWT_SECRET);
+    const now = Math.floor(Date.now() / 1000);
+    const jwt = await sign(
+      { id: user.id, iat: now, exp: now + 60 * 60 * 24 },
+      c.env.JWT_SECRET,
+    );
     return c.json(jwt);
   } catch (e) {
     c.status(500);

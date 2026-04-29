@@ -28,7 +28,7 @@ expiry, CORS is permissive, no rate limiting.
       per-user salt. Store as `pbkdf2$<iter>$<saltB64>$<hashB64>`. On signin: detect
       legacy plaintext, compare, rehash, persist. On signup: hash before insert.
       File: `backend/src/lib/password.ts`, edits to `user.ts`.
-- [ ] **JWT expiry + iat** — Add `exp` (24h) + `iat` to `sign()`. Frontend should
+- [x] **JWT expiry + iat** — Add `exp` (24h) + `iat` to `sign()`. Frontend should
       handle 401 on expired and redirect to /signin.
 - [ ] **Rotate leaked secrets** — Generate new Neon password, JWT secret, Accelerate
       key, Clerk key. Update Cloudflare via `wrangler secret put`. (Skipped from
@@ -43,8 +43,10 @@ expiry, CORS is permissive, no rate limiting.
 - [ ] **Rate limiting** — Cloudflare-native: use `@upstash/ratelimit` with KV, or a
       simple per-IP token bucket via Workers KV. Apply to `/signup` and `/signin`
       (5 req/min). **[L]**
-- [ ] **Standard auth header** — Accept `Authorization: Bearer <jwt>` (currently
+- [x] **Standard auth header** — Accept `Authorization: Bearer <jwt>` (currently
       raw token). Update frontend to send `Bearer ` prefix.
+      *Backend now accepts both forms (back-compat). Frontend prefix migration
+      deferred until centralized API client lands (P3).*
 - [ ] **Validate on every route** — Use `@hono/zod-validator` with the schemas in
       `common/src/index.ts`. Replace ad-hoc `if (!body.email)` checks.
 

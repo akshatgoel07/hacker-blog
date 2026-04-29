@@ -14,20 +14,24 @@ export const bookRouter = new Hono<{
 }>();
 
 bookRouter.use("/*", async (c, next) => {
-  const jwt = c.req.header("Authorization");
-  console.log(jwt);
-  if (!jwt) {
+  const header = c.req.header("Authorization");
+  if (!header) {
     c.status(401);
     return c.json({ error: "unauthorized" });
   }
-  const token = jwt;
-  const payload = await verify(token, c.env.JWT_SECRET, "HS256");
-  if (!payload) {
+  const token = header.startsWith("Bearer ") ? header.slice(7) : header;
+  try {
+    const payload = await verify(token, c.env.JWT_SECRET, "HS256");
+    if (!payload || typeof (payload as any).id !== "string") {
+      c.status(401);
+      return c.json({ error: "unauthorized" });
+    }
+    c.set("userId", (payload as any).id);
+    await next();
+  } catch (e) {
     c.status(401);
     return c.json({ error: "unauthorized" });
   }
-  c.set("userId", payload.id);
-  await next();
 });
 
 bookRouter.post("/", async (c) => {
