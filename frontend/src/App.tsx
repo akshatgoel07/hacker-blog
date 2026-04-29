@@ -1,18 +1,33 @@
+import { lazy, Suspense } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Signup } from "./pages/Signup";
 import { Signin } from "./pages/Signin";
-import { Blog } from "./pages/Blog";
 import { Blogs } from "./pages/Blogs";
-import { Publish } from "./pages/Publish";
 import { Landing } from "./pages/Landing";
-import { ProfilePage } from "./pages/ProfilePage";
 import { Toaster } from "@/components/ui/toaster";
+import { Spinner } from "./components/Spinner";
+
+const Publish = lazy(() =>
+  import("./pages/Publish").then((m) => ({ default: m.Publish })),
+);
+const Blog = lazy(() =>
+  import("./pages/Blog").then((m) => ({ default: m.Blog })),
+);
+const ProfilePage = lazy(() =>
+  import("./pages/ProfilePage").then((m) => ({ default: m.ProfilePage })),
+);
+
+const PageFallback = () => (
+  <div className="min-h-screen flex items-center justify-center bg-parchment-200">
+    <Spinner />
+  </div>
+);
 
 function App() {
   return (
-    <>
-      <BrowserRouter>
-        <Toaster />
+    <BrowserRouter>
+      <Toaster />
+      <Suspense fallback={<PageFallback />}>
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/signup" element={<Signup />} />
@@ -22,8 +37,8 @@ function App() {
           <Route path="/publish" element={<Publish />} />
           <Route path="/profile" element={<ProfilePage />} />
         </Routes>
-      </BrowserRouter>
-    </>
+      </Suspense>
+    </BrowserRouter>
   );
 }
 

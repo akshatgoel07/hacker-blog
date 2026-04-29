@@ -84,11 +84,15 @@ expiry, CORS is permissive, no rate limiting.
       cursor pagination and `(authorId, createdAt DESC)` for
       `/get-blogs-for-user`. **User must run `npx prisma migrate
       deploy` (or `prisma migrate dev`) in `backend/` to apply.***
-- [ ] **Code-split editor route** — `Publish.tsx` pulls in
+- [x] **Code-split editor route** — `Publish.tsx` pulls in
       `react-markdown-editor-lite` + `markdown-it`; lazy-load via
       `React.lazy` + `Suspense`. Saves ~150KB from the initial bundle.
-- [ ] **Memoize markdown render in BlogCard** — `useMemo` on the parsed excerpt;
+      *Split: Publish (59KB gzip), Blog (55KB), ProfilePage (27KB)
+      now lazy. Main chunk: 163KB gzip.*
+- [x] **Memoize markdown render in BlogCard** — `useMemo` on the parsed excerpt;
       currently re-renders on every list re-render.
+      *`BlogCard` is now `React.memo`; `excerpt` and `minutes` use
+      `useMemo` keyed on `content`.*
 - [ ] **Bundle audit** — Three markdown libs in deps (`react-markdown`,
       `markdown-it`, `editorjs`). Drop `editorjs` (unused) and `markdown-it`
       (only used in Publish render preview — `react-markdown` can do it).

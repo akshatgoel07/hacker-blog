@@ -1,3 +1,4 @@
+import { memo, useMemo } from "react";
 import { Link } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -17,15 +18,21 @@ const stripMarkdown = (text: string) =>
     .replace(/\[(.*?)\]\(.*?\)/g, "$1")
     .replace(/\n+/g, " ");
 
-export const BlogCard = ({
+export const BlogCard = memo(function BlogCard({
   id,
   authorName,
   title,
   content,
   publishedDate,
-}: BlogCardProps) => {
-  const minutes = Math.max(1, Math.ceil(content.length / 800));
-  const excerpt = stripMarkdown(content).slice(0, 220).trim() + "…";
+}: BlogCardProps) {
+  const minutes = useMemo(
+    () => Math.max(1, Math.ceil(content.length / 800)),
+    [content],
+  );
+  const excerpt = useMemo(
+    () => stripMarkdown(content).slice(0, 220).trim() + "…",
+    [content],
+  );
 
   return (
     <Link to={`/blog/${id}`} className="block group">
@@ -45,7 +52,7 @@ export const BlogCard = ({
       </article>
     </Link>
   );
-};
+});
 
 export function Circle() {
   return <div className="h-1 w-1 rounded-full bg-ink-soft"></div>;
