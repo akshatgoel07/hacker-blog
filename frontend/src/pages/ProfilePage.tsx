@@ -10,7 +10,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { BACKEND_URL } from "../config";
 import { Appbar } from "../components/Appbar";
 import { useToast } from "../hooks/use-toast";
-import { useDrafts } from "../hooks";
+import { useDeletePost, useDrafts } from "../hooks";
 import { formatPublishedDate } from "../lib/date";
 
 import {
@@ -40,6 +40,19 @@ export const ProfilePage = () => {
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [profileEmail, setProfileEmail] = useState<string>("");
   const { drafts, loading: draftsLoading } = useDrafts();
+  const deletePost = useDeletePost();
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
+
+  const handleDelete = (id: string) => {
+    deletePost.mutate(id, {
+      onSuccess: () => {
+        setConfirmingId(null);
+        toast({ title: "Draft discarded" });
+      },
+      onError: () =>
+        toast({ title: "Couldn't delete draft", variant: "destructive" }),
+    });
+  };
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
@@ -208,11 +221,8 @@ export const ProfilePage = () => {
           ) : (
             <ul className="divide-y divide-ink">
               {drafts.map((d) => (
-                <li key={d.id} className="py-3">
-                  <Link
-                    to={`/edit/${d.id}`}
-                    className="block group"
-                  >
+                <li key={d.id} className="py-3 flex items-start gap-4">
+                  <Link to={`/edit/${d.id}`} className="flex-1 group">
                     <div className="font-display text-lg text-ink leading-snug capitalize group-hover:underline decoration-1 underline-offset-4">
                       {d.title || <em className="italic">Untitled</em>}
                     </div>
@@ -224,6 +234,31 @@ export const ProfilePage = () => {
                       </span>
                     </div>
                   </Link>
+                  {confirmingId === d.id ? (
+                    <div className="flex items-center gap-2 mt-1">
+                      <button
+                        onClick={() => handleDelete(d.id)}
+                        disabled={deletePost.isPending}
+                        className="font-smallcaps tracking-widest text-[10px] px-3 py-1 bg-destructive text-destructive-foreground border border-destructive disabled:opacity-50"
+                      >
+                        {deletePost.isPending ? "…" : "Discard"}
+                      </button>
+                      <button
+                        onClick={() => setConfirmingId(null)}
+                        className="font-smallcaps tracking-widest text-[10px] px-3 py-1 border border-ink text-ink"
+                      >
+                        Keep
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setConfirmingId(d.id)}
+                      className="font-smallcaps tracking-widest text-[10px] mt-1 px-3 py-1 border border-ink-faded text-ink-faded hover:border-destructive hover:text-destructive transition-colors"
+                      aria-label="Delete draft"
+                    >
+                      Discard
+                    </button>
+                  )}
                 </li>
               ))}
             </ul>

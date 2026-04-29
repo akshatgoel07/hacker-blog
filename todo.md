@@ -143,8 +143,15 @@ expiry, CORS is permissive, no rate limiting.
       handles new + edit. Drafts list on /profile links each draft to
       /edit/:id. React Query invalidations on save bust ["edit-post",
       id], ["drafts"], ["blog", id], ["blogs"].*
-- [ ] **Delete post** — Backend `DELETE /:id` (auth + ownership check). UI:
+- [x] **Delete post** — Backend `DELETE /:id` (auth + ownership check). UI:
       delete button on user's own posts in `/profile`.
+      *Backend uses `deleteMany` with `{ id, authorId: userId }` so a
+      404 is returned whether the post doesn't exist or belongs to
+      someone else (no leakage). UI: per-draft "Discard" button on
+      /profile with an inline two-step confirm. Toast on success.
+      `useDeletePost` mutation invalidates `["drafts"]`/`["blogs"]`
+      and removes the cached `["edit-post", id]` and `["blog", id]`
+      entries.*
 - [ ] **Author profile pages** — `/u/:userId` shows that user's published posts.
       Reuse the BlogCard list component. Public, no auth required.
 - [ ] **Tags** — `Tag` model with `@@unique([slug])`, many-to-many to `Post` via

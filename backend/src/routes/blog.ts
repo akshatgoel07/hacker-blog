@@ -71,6 +71,28 @@ bookRouter.put(
   },
 );
 
+bookRouter.delete("/:id", authMiddleware, async (c) => {
+  const userId = c.get("userId");
+  const id = c.req.param("id");
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env?.DATABASE_URL,
+  }).$extends(withAccelerate());
+
+  try {
+    const result = await prisma.post.deleteMany({
+      where: { id, authorId: userId },
+    });
+    if (result.count === 0) {
+      c.status(404);
+      return c.json({ message: "Post not found or not owned by you" });
+    }
+    return c.json({ id, deleted: true });
+  } catch (e) {
+    c.status(500);
+    return c.json({ message: "Error deleting post" });
+  }
+});
+
 bookRouter.get("/edit/:id", authMiddleware, async (c) => {
   const userId = c.get("userId");
   const id = c.req.param("id");

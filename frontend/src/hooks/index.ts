@@ -1,5 +1,10 @@
 import axios from "axios";
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { BACKEND_URL } from "../config";
 
 export interface Blog {
@@ -105,6 +110,24 @@ export const useEditablePost = (id: string | undefined) => {
     staleTime: 0,
   });
   return { loading: isLoading, post: data, error };
+};
+
+export const useDeletePost = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      await axios.delete(`${BACKEND_URL}/api/v1/blog/${id}`, {
+        headers: authHeader(),
+      });
+      return id;
+    },
+    onSuccess: (id) => {
+      qc.invalidateQueries({ queryKey: ["drafts"] });
+      qc.invalidateQueries({ queryKey: ["blogs"] });
+      qc.removeQueries({ queryKey: ["edit-post", id] });
+      qc.removeQueries({ queryKey: ["blog", id] });
+    },
+  });
 };
 
 export const useDrafts = () => {
