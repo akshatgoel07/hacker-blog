@@ -2,7 +2,11 @@ import { PrismaClient } from "@prisma/client/edge";
 import { withAccelerate } from "@prisma/extension-accelerate";
 import { Hono } from "hono";
 import { authMiddleware } from "../middleware/middleware";
-import { createPostSchema, updatePostSchema } from "../lib/schemas";
+import {
+  createCommentSchema,
+  createPostSchema,
+  updatePostSchema,
+} from "../lib/schemas";
 import { validateJson } from "../lib/validate";
 
 export const bookRouter = new Hono<{
@@ -68,6 +72,102 @@ bookRouter.put(
     });
 
     return c.json({ id: post.id, published: post.published });
+  },
+);
+
+bookRouter.get("/:postId/comments", async (c) => {
+  const postId = c.req.param("postId");
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env?.DATABASE_URL,
+  }).$extends(withAccelerate());
+
+  const post = await prisma.post.findFirst({
+    where: { id: postId, published: true },
+    select: { id: true },
+  });
+  if (!post) {
+    c.status(404);
+    return c.json({ message: "Post not found" });
+  }
+
+  const comments = await prisma.comment.findMany({
+    where: { postId },
+    select: {
+      id: true,
+      content: true,
+      createdAt: true,
+      author: { select: { id: true, name: true } },
+    },
+    orderBy: { createdAt: "asc" },
+  });
+
+  c.header("Cache-Control", "public, max-age=15, s-maxage=15");
+  return c.json({ comments });
+});
+
+bookRouter.post(
+  "/:postId/comments",
+  authMiddleware,
+  validateJson(createCommentSchema),
+  async (c) => {
+    const userId = c.get("userId");
+    const postId = c.req.param("postId");
+    const body = c.req.valid("json");
+    const prisma = new PrismaClient({
+      datasourceUrl: c.env?.DATABASE_URL,
+    }).$extends(withAccelerate());
+
+    const post = await prisma.post.findFirst({
+      where: { id: postId, published: true },
+      select: { id: true },
+    });
+    if (!post) {
+      c.status(404);
+      return c.json({ message: "Post not found" });
+    }
+
+    const comment = await prisma.comment.create({
+      data: { postId, authorId: userId, content: body.content },
+      select: {
+        id: true,
+        content: true,
+        createdAt: true,
+        author: { select: { id: true, name: true } },
+      },
+    });
+    return c.json({ comment });
+  },
+);
+
+bookRouter.delete(
+  "/:postId/comments/:commentId",
+  authMiddleware,
+  async (c) => {
+    const userId = c.get("userId");
+    const postId = c.req.param("postId");
+    const commentId = c.req.param("commentId");
+    const prisma = new PrismaClient({
+      datasourceUrl: c.env?.DATABASE_URL,
+    }).$extends(withAccelerate());
+
+    const comment = await prisma.comment.findUnique({
+      where: { id: commentId },
+      select: { authorId: true, postId: true, post: { select: { authorId: true } } },
+    });
+    if (!comment || comment.postId !== postId) {
+      c.status(404);
+      return c.json({ message: "Comment not found" });
+    }
+
+    const isCommentAuthor = comment.authorId === userId;
+    const isPostAuthor = comment.post.authorId === userId;
+    if (!isCommentAuthor && !isPostAuthor) {
+      c.status(403);
+      return c.json({ message: "Not allowed" });
+    }
+
+    await prisma.comment.delete({ where: { id: commentId } });
+    return c.json({ id: commentId, deleted: true });
   },
 );
 

@@ -161,9 +161,15 @@ expiry, CORS is permissive, no rate limiting.
       now `Link`s to the author page (when `author.id` is present).*
 - [ ] **Tags** — `Tag` model with `@@unique([slug])`, many-to-many to `Post` via
       `_PostTags`. Add tag chips to BlogCard. Filter `/bulk?tag=<slug>`. **[L]**
-- [ ] **Comments** — `Comment` model (id, postId, authorId, content, createdAt).
+- [x] **Comments** — `Comment` model (id, postId, authorId, content, createdAt).
       Threaded later; flat first. Endpoints: `POST /:postId/comments`,
       `GET /:postId/comments`. **[L]**
+      *Backend half done in iter 23: `Comment` model with cascade
+      delete from User and Post, `@@index([postId, createdAt])`.
+      Migration `20260429172432_add_comments` applied to Neon. Three
+      endpoints: GET (public + 15s edge cache), POST (auth, 1-2000
+      char content), DELETE (auth + author-or-post-author check).
+      Frontend UI in iter 24.*
 - [x] **Search** — Postgres full-text index on `title || content`.
       `GET /search?q=...` returns ranked posts.
       *Implemented as ILIKE (case-insensitive `contains`) on title OR
