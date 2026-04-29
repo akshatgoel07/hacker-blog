@@ -143,6 +143,44 @@ bookRouter.get("/drafts", authMiddleware, async (c) => {
   return c.json({ posts });
 });
 
+bookRouter.get("/search", async (c) => {
+  const q = (c.req.query("q") ?? "").trim();
+  if (q.length < 2) {
+    c.status(400);
+    return c.json({ message: "Query must be at least 2 characters" });
+  }
+  if (q.length > 100) {
+    c.status(400);
+    return c.json({ message: "Query too long" });
+  }
+
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env?.DATABASE_URL,
+  }).$extends(withAccelerate());
+
+  const posts = await prisma.post.findMany({
+    where: {
+      published: true,
+      OR: [
+        { title: { contains: q, mode: "insensitive" } },
+        { content: { contains: q, mode: "insensitive" } },
+      ],
+    },
+    select: {
+      id: true,
+      title: true,
+      content: true,
+      createdAt: true,
+      author: { select: { id: true, name: true } },
+    },
+    orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+    take: 20,
+  });
+
+  c.header("Cache-Control", "public, max-age=30, s-maxage=30");
+  return c.json({ posts, query: q });
+});
+
 bookRouter.get("/bulk", async (c) => {
   const prisma = new PrismaClient({
     datasourceUrl: c.env?.DATABASE_URL,

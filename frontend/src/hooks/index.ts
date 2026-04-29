@@ -178,6 +178,23 @@ export const useDrafts = () => {
   return { loading: isLoading, drafts: data ?? [] };
 };
 
+export const useSearchBlogs = (query: string) => {
+  const trimmed = query.trim();
+  const enabled = trimmed.length >= 2;
+  const { data, isLoading } = useQuery({
+    queryKey: ["search", trimmed],
+    queryFn: async () => {
+      const res = await axios.get(
+        `${BACKEND_URL}/api/v1/blog/search?q=${encodeURIComponent(trimmed)}`,
+      );
+      return (res.data.posts || []) as Blog[];
+    },
+    enabled,
+    staleTime: 30_000,
+  });
+  return { loading: isLoading && enabled, posts: data ?? [], enabled };
+};
+
 export const useRelatedBlogs = ({ id }: { id: string }) => {
   const { data, isLoading } = useQuery({
     queryKey: ["blog", id, "related"],

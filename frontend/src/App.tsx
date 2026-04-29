@@ -20,6 +20,9 @@ const ProfilePage = lazy(() =>
 const AuthorProfile = lazy(() =>
   import("./pages/AuthorProfile").then((m) => ({ default: m.AuthorProfile })),
 );
+const Search = lazy(() =>
+  import("./pages/Search").then((m) => ({ default: m.Search })),
+);
 
 const PageFallback = () => (
   <div className="min-h-screen flex items-center justify-center bg-parchment-200">
@@ -42,6 +45,7 @@ function App() {
           <Route path="/edit/:id" element={<Publish />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/u/:id" element={<AuthorProfile />} />
+          <Route path="/search" element={<Search />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>

@@ -164,8 +164,16 @@ expiry, CORS is permissive, no rate limiting.
 - [ ] **Comments** — `Comment` model (id, postId, authorId, content, createdAt).
       Threaded later; flat first. Endpoints: `POST /:postId/comments`,
       `GET /:postId/comments`. **[L]**
-- [ ] **Search** — Postgres full-text index on `title || content`.
+- [x] **Search** — Postgres full-text index on `title || content`.
       `GET /search?q=...` returns ranked posts.
+      *Implemented as ILIKE (case-insensitive `contains`) on title OR
+      content, filtered to `published: true`, ordered by createdAt
+      desc, top 20. Validates 2-100 chars. Cache-Control 30s.
+      Frontend: dedicated `/search` page (lazy chunk) with input,
+      empty/loading/no-results states; "Search" link added to the
+      masthead nav. Postgres FTS / pg_trgm + ranking is the proper
+      next step once the post count is large enough that ILIKE
+      slows down -- noted but deferred.*
 - [ ] **Bookmarks** — `Bookmark` join table (userId, postId, createdAt).
       `/bookmarks` page renders saved posts.
 

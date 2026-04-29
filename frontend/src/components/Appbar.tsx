@@ -43,6 +43,9 @@ export const Appbar = () => {
             <Link to="/blogs" className="hover:underline underline-offset-4 decoration-1">
               Front Page
             </Link>
+            <Link to="/search" className="hover:underline underline-offset-4 decoration-1">
+              Search
+            </Link>
             <Link to="/publish" className="hover:underline underline-offset-4 decoration-1">
               Submit a Story
             </Link>
