@@ -32,6 +32,7 @@ export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
 export const createPostSchema = z.object({
   title: z.string().trim().min(1, "Title is required").max(200),
   content: z.string().min(1, "Content is required"),
+  published: z.boolean().optional(),
 });
 export type CreatePostInput = z.infer<typeof createPostSchema>;
 
@@ -39,5 +40,6 @@ export const updatePostSchema = z.object({
   id: z.string().min(1, "Post id is required"),
   title: z.string().trim().min(1).max(200).optional(),
   content: z.string().min(1).optional(),
+  published: z.boolean().optional(),
 });
 export type UpdatePostInput = z.infer<typeof updatePostSchema>;

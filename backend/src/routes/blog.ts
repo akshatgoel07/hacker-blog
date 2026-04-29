@@ -40,9 +40,10 @@ bookRouter.post(
         title: body.title,
         content: body.content,
         authorId: userId,
+        published: body.published ?? true,
       },
     });
-    return c.json({ id: post.id });
+    return c.json({ id: post.id, published: post.published });
   },
 );
 
@@ -59,12 +60,38 @@ bookRouter.put(
     const body = c.req.valid("json");
     const post = await prisma.post.update({
       where: { id: body.id, authorId: userId },
-      data: { title: body.title, content: body.content },
+      data: {
+        ...(body.title !== undefined && { title: body.title }),
+        ...(body.content !== undefined && { content: body.content }),
+        ...(body.published !== undefined && { published: body.published }),
+      },
     });
 
-    return c.json({ id: post.id });
+    return c.json({ id: post.id, published: post.published });
   },
 );
+
+bookRouter.get("/drafts", authMiddleware, async (c) => {
+  const userId = c.get("userId");
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env?.DATABASE_URL,
+  }).$extends(withAccelerate());
+
+  const posts = await prisma.post.findMany({
+    where: { authorId: userId, published: false },
+    select: {
+      id: true,
+      title: true,
+      content: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+    orderBy: [{ updatedAt: "desc" }, { id: "desc" }],
+  });
+
+  c.header("Cache-Control", "no-store");
+  return c.json({ posts });
+});
 
 bookRouter.get("/bulk", async (c) => {
   const prisma = new PrismaClient({
@@ -78,6 +105,7 @@ bookRouter.get("/bulk", async (c) => {
     : 20;
 
   const rows = await prisma.post.findMany({
+    where: { published: true },
     take: limit + 1,
     ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
     select: {
@@ -105,7 +133,7 @@ bookRouter.get("/related/:id", async (c) => {
   }).$extends(withAccelerate());
   try {
     const posts = await prisma.post.findMany({
-      where: { NOT: { id } },
+      where: { NOT: { id }, published: true },
       select: {
         id: true,
         title: true,
@@ -131,7 +159,7 @@ bookRouter.get("/:id", async (c) => {
   }).$extends(withAccelerate());
   try {
     const post = await prisma.post.findFirst({
-      where: { id: id },
+      where: { id: id, published: true },
       select: {
         id: true,
         title: true,
@@ -161,7 +189,7 @@ bookRouter.get("/get-blogs-for-user/:userId", async (c) => {
   }).$extends(withAccelerate());
   try {
     const posts = await prisma.post.findMany({
-      where: { authorId: userId },
+      where: { authorId: userId, published: true },
       select: {
         id: true,
         title: true,
