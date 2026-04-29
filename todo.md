@@ -126,11 +126,23 @@ expiry, CORS is permissive, no rate limiting.
 
 ## Priority 2 — Core features
 
-- [ ] **Drafts** — Use existing `Post.published` field. Publish.tsx gets a "Save
+- [x] **Drafts** — Use existing `Post.published` field. Publish.tsx gets a "Save
       draft" button. New `/api/v1/blog/drafts` endpoint (auth-required, current
       user only). Drafts hidden from `/bulk`.
-- [ ] **Edit-your-own-post UI** — Reuse Publish.tsx for edit mode at
+      *Backfill migration set all pre-existing posts to published=true so
+      they survived the `/bulk` filter. POST defaults to true unless
+      `published:false` sent. /drafts auth-required, owner-only, ordered
+      by updatedAt desc. Filter applied to all public reads (/bulk,
+      /:id, /related, /get-blogs-for-user). UI: "Save as draft" /
+      "Send to press" CTAs in the (newly themed) Publish page;
+      "Drafts in the drawer" section on /profile.*
+- [x] **Edit-your-own-post UI** — Reuse Publish.tsx for edit mode at
       `/edit/:id`. Backend PUT already exists; just wire UI + auth check.
+      *New backend endpoint `GET /api/v1/blog/edit/:id` (auth, owner-only,
+      includes drafts). Publish.tsx is now route-param-aware; same form
+      handles new + edit. Drafts list on /profile links each draft to
+      /edit/:id. React Query invalidations on save bust ["edit-post",
+      id], ["drafts"], ["blog", id], ["blogs"].*
 - [ ] **Delete post** — Backend `DELETE /:id` (auth + ownership check). UI:
       delete button on user's own posts in `/profile`.
 - [ ] **Author profile pages** — `/u/:userId` shows that user's published posts.

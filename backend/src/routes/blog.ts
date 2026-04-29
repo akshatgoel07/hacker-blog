@@ -71,6 +71,34 @@ bookRouter.put(
   },
 );
 
+bookRouter.get("/edit/:id", authMiddleware, async (c) => {
+  const userId = c.get("userId");
+  const id = c.req.param("id");
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env?.DATABASE_URL,
+  }).$extends(withAccelerate());
+
+  const post = await prisma.post.findFirst({
+    where: { id, authorId: userId },
+    select: {
+      id: true,
+      title: true,
+      content: true,
+      published: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
+
+  if (!post) {
+    c.status(404);
+    return c.json({ message: "Post not found or not owned by you" });
+  }
+
+  c.header("Cache-Control", "no-store");
+  return c.json({ post });
+});
+
 bookRouter.get("/drafts", authMiddleware, async (c) => {
   const userId = c.get("userId");
   const prisma = new PrismaClient({

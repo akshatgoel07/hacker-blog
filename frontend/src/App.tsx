@@ -35,6 +35,7 @@ function App() {
           <Route path="/blog/:id" element={<Blog />} />
           <Route path="/blogs" element={<Blogs />} />
           <Route path="/publish" element={<Publish />} />
+          <Route path="/edit/:id" element={<Publish />} />
           <Route path="/profile" element={<ProfilePage />} />
         </Routes>
       </Suspense>

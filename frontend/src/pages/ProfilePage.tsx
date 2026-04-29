@@ -209,12 +209,21 @@ export const ProfilePage = () => {
             <ul className="divide-y divide-ink">
               {drafts.map((d) => (
                 <li key={d.id} className="py-3">
-                  <div className="font-display text-lg text-ink leading-snug capitalize">
-                    {d.title || <em className="italic">Untitled</em>}
-                  </div>
-                  <div className="font-smallcaps text-[11px] text-ink-soft tracking-widest mt-1">
-                    Last edited {formatPublishedDate(d.updatedAt)}
-                  </div>
+                  <Link
+                    to={`/edit/${d.id}`}
+                    className="block group"
+                  >
+                    <div className="font-display text-lg text-ink leading-snug capitalize group-hover:underline decoration-1 underline-offset-4">
+                      {d.title || <em className="italic">Untitled</em>}
+                    </div>
+                    <div className="font-smallcaps text-[11px] text-ink-soft tracking-widest mt-1">
+                      Last edited {formatPublishedDate(d.updatedAt)}
+                      <span className="mx-2">·</span>
+                      <span className="text-sepia group-hover:text-sepia-dark">
+                        Continue →
+                      </span>
+                    </div>
+                  </Link>
                 </li>
               ))}
             </ul>

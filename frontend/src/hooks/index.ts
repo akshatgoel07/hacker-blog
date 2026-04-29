@@ -82,6 +82,31 @@ export interface DraftPost {
   updatedAt: string;
 }
 
+export interface EditablePost {
+  id: string;
+  title: string;
+  content: string;
+  published: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const useEditablePost = (id: string | undefined) => {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["edit-post", id],
+    queryFn: async () => {
+      const res = await axios.get(
+        `${BACKEND_URL}/api/v1/blog/edit/${id}`,
+        { headers: authHeader() },
+      );
+      return res.data.post as EditablePost;
+    },
+    enabled: !!id,
+    staleTime: 0,
+  });
+  return { loading: isLoading, post: data, error };
+};
+
 export const useDrafts = () => {
   const { data, isLoading } = useQuery({
     queryKey: ["drafts"],
