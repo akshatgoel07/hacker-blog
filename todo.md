@@ -36,10 +36,18 @@ expiry, CORS is permissive, no rate limiting.
 - [x] **Move secrets out of git** — Add `.env`, `wrangler.toml` to `.gitignore`,
       `git rm --cached` them, write `.env.example` and `wrangler.example.toml` with
       placeholder values, document in README.
-- [ ] **CORS lockdown** — Restrict `cors()` to known origins
+- [x] **CORS lockdown** — Restrict `cors()` to known origins
       (`http://localhost:5173`, deployed Vercel domain). Read from env.
-- [ ] **Strip credential logging** — Remove `console.log(jwt)` in `blog.ts:18`.
+      *`ALLOWED_ORIGINS` (comma-separated) in wrangler.toml; defaults to
+      `http://localhost:5173` if unset. Production must add the deployed
+      frontend domain.*
+- [x] **Strip credential logging** — Remove `console.log(jwt)` in `blog.ts:18`.
       Add lint rule banning `console.log` in `backend/src`.
+      *`console.log(jwt)` was already removed in iter 2 when the auth
+      middleware got a try/catch; this iter also removed the leftover
+      `console.log("control reached after body")` debug line. The
+      ESLint rule for backend is deferred until a backend lint config
+      exists (currently only frontend has one).*
 - [ ] **Rate limiting** — Cloudflare-native: use `@upstash/ratelimit` with KV, or a
       simple per-IP token bucket via Workers KV. Apply to `/signup` and `/signin`
       (5 req/min). **[L]**

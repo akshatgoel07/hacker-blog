@@ -41,7 +41,6 @@ bookRouter.post("/", async (c) => {
   }).$extends(withAccelerate());
 
   const body = await c.req.json();
-  console.log("control reached after body");
   const post = await prisma.post.create({
     data: {
       title: body.title,

@@ -10,3 +10,6 @@ compatibility_date = "2023-12-01"
 [vars]
 DATABASE_URL = "prisma://accelerate.prisma-data.net/?api_key=YOUR_ACCELERATE_KEY"
 JWT_SECRET = "change-me-to-a-long-random-string"
+# Comma-separated list of origins allowed to call /api/*. If unset, only
+# http://localhost:5173 is allowed. Add your deployed frontend domain here.
+ALLOWED_ORIGINS = "http://localhost:5173"
