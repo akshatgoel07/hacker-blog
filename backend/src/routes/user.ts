@@ -91,6 +91,28 @@ userRouter.post("/signin", validateJson(signinSchema), async (c) => {
   }
 });
 
+userRouter.get("/public/:id", async (c) => {
+  const id = c.req.param("id");
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env?.DATABASE_URL,
+  }).$extends(withAccelerate());
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id },
+      select: { id: true, name: true },
+    });
+    if (!user) {
+      c.status(404);
+      return c.json({ message: "User not found" });
+    }
+    c.header("Cache-Control", "public, max-age=300, s-maxage=300");
+    return c.json(user);
+  } catch (e) {
+    c.status(500);
+    return c.json({ message: "Error fetching user" });
+  }
+});
+
 userRouter.get("/me", authMiddleware, async (c) => {
   const userId = c.get("userId");
   const prisma = new PrismaClient({

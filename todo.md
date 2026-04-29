@@ -152,8 +152,13 @@ expiry, CORS is permissive, no rate limiting.
       `useDeletePost` mutation invalidates `["drafts"]`/`["blogs"]`
       and removes the cached `["edit-post", id]` and `["blog", id]`
       entries.*
-- [ ] **Author profile pages** — `/u/:userId` shows that user's published posts.
+- [x] **Author profile pages** — `/u/:userId` shows that user's published posts.
       Reuse the BlogCard list component. Public, no auth required.
+      *New `GET /api/v1/user/public/:id` returns just `{id, name}` (5min
+      Cache-Control). All post-returning endpoints now include
+      `author.id`. New `/u/:id` page lists the user's filed stories
+      via `BlogCard`. Author names on cards + full-article byline are
+      now `Link`s to the author page (when `author.id` is present).*
 - [ ] **Tags** — `Tag` model with `@@unique([slug])`, many-to-many to `Post` via
       `_PostTags`. Add tag chips to BlogCard. Filter `/bulk?tag=<slug>`. **[L]**
 - [ ] **Comments** — `Comment` model (id, postId, authorId, content, createdAt).

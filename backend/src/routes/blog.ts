@@ -163,7 +163,7 @@ bookRouter.get("/bulk", async (c) => {
       title: true,
       id: true,
       createdAt: true,
-      author: { select: { name: true } },
+      author: { select: { id: true, name: true } },
     },
     orderBy: [{ createdAt: "desc" }, { id: "desc" }],
   });
@@ -189,7 +189,7 @@ bookRouter.get("/related/:id", async (c) => {
         title: true,
         content: true,
         createdAt: true,
-        author: { select: { name: true } },
+        author: { select: { id: true, name: true } },
       },
       orderBy: [{ createdAt: "desc" }, { id: "desc" }],
       take: 3,
@@ -215,7 +215,7 @@ bookRouter.get("/:id", async (c) => {
         title: true,
         content: true,
         createdAt: true,
-        author: { select: { name: true } },
+        author: { select: { id: true, name: true } },
       },
     });
 
@@ -245,7 +245,7 @@ bookRouter.get("/get-blogs-for-user/:userId", async (c) => {
         title: true,
         content: true,
         createdAt: true,
-        author: { select: { name: true } },
+        author: { select: { id: true, name: true } },
       },
       orderBy: [{ createdAt: "desc" }, { id: "desc" }],
     });

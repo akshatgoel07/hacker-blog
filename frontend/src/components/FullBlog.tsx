@@ -22,7 +22,17 @@ export const FullBlog = ({ blog }: { blog: Blog }) => {
         </h1>
 
         <div className="mt-4 text-center font-smallcaps text-[12px] text-ink-soft tracking-widest">
-          <span>By {blog.author?.name || "Anonymous"}</span>
+          <span>By </span>
+          {blog.author?.id ? (
+            <Link
+              to={`/u/${blog.author.id}`}
+              className="hover:text-sepia-dark hover:underline decoration-1 underline-offset-4"
+            >
+              {blog.author?.name || "Anonymous"}
+            </Link>
+          ) : (
+            <span>{blog.author?.name || "Anonymous"}</span>
+          )}
           <span className="mx-3">·</span>
           <span>{formatPublishedDate(blog.createdAt)}</span>
         </div>

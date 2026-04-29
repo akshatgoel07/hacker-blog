@@ -13,9 +13,43 @@ export interface Blog {
   id: number;
   createdAt?: string;
   author: {
+    id?: string;
     name: string;
   };
 }
+
+export interface PublicUser {
+  id: string;
+  name: string;
+}
+
+export const usePublicUser = (id: string | undefined) => {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["public-user", id],
+    queryFn: async () => {
+      const res = await axios.get(`${BACKEND_URL}/api/v1/user/public/${id}`);
+      return res.data as PublicUser;
+    },
+    enabled: !!id,
+    staleTime: 5 * 60_000,
+  });
+  return { loading: isLoading, user: data, error };
+};
+
+export const useAuthorPosts = (authorId: string | undefined) => {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["author-posts", authorId],
+    queryFn: async () => {
+      const res = await axios.get(
+        `${BACKEND_URL}/api/v1/blog/get-blogs-for-user/${authorId}`,
+      );
+      return (res.data.posts || []) as Blog[];
+    },
+    enabled: !!authorId,
+    staleTime: 60_000,
+  });
+  return { loading: isLoading, posts: data ?? [], error };
+};
 
 const PAGE_SIZE = 20;
 

@@ -16,6 +16,9 @@ const Blog = lazy(() =>
 const ProfilePage = lazy(() =>
   import("./pages/ProfilePage").then((m) => ({ default: m.ProfilePage })),
 );
+const AuthorProfile = lazy(() =>
+  import("./pages/AuthorProfile").then((m) => ({ default: m.AuthorProfile })),
+);
 
 const PageFallback = () => (
   <div className="min-h-screen flex items-center justify-center bg-parchment-200">
@@ -37,6 +40,7 @@ function App() {
           <Route path="/publish" element={<Publish />} />
           <Route path="/edit/:id" element={<Publish />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/u/:id" element={<AuthorProfile />} />
         </Routes>
       </Suspense>
     </BrowserRouter>

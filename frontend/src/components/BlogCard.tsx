@@ -5,6 +5,7 @@ import remarkGfm from "remark-gfm";
 
 interface BlogCardProps {
   authorName: string;
+  authorId?: string;
   title: string;
   content: string;
   publishedDate: string;
@@ -21,6 +22,7 @@ const stripMarkdown = (text: string) =>
 export const BlogCard = memo(function BlogCard({
   id,
   authorName,
+  authorId,
   title,
   content,
   publishedDate,
@@ -35,11 +37,22 @@ export const BlogCard = memo(function BlogCard({
   );
 
   return (
-    <Link to={`/blog/${id}`} className="block group">
-      <article className="border-b border-ink py-6 max-w-2xl">
-        <div className="font-smallcaps text-[11px] text-ink-soft tracking-widest mb-1">
-          {authorName} · {publishedDate} · {minutes} min read
-        </div>
+    <article className="border-b border-ink py-6 max-w-2xl">
+      <div className="font-smallcaps text-[11px] text-ink-soft tracking-widest mb-1">
+        {authorId ? (
+          <Link
+            to={`/u/${authorId}`}
+            className="hover:text-sepia-dark hover:underline decoration-1 underline-offset-4"
+          >
+            {authorName}
+          </Link>
+        ) : (
+          <span>{authorName}</span>
+        )}
+        {" · "}
+        {publishedDate} · {minutes} min read
+      </div>
+      <Link to={`/blog/${id}`} className="block group">
         <h2 className="font-display text-3xl md:text-4xl text-ink leading-tight capitalize group-hover:underline decoration-1 underline-offset-4">
           {title}
         </h2>
@@ -49,8 +62,8 @@ export const BlogCard = memo(function BlogCard({
         <div className="mt-3 font-smallcaps text-[11px] text-sepia tracking-widest">
           Continue reading →
         </div>
-      </article>
-    </Link>
+      </Link>
+    </article>
   );
 });
 

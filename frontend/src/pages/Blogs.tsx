@@ -41,6 +41,7 @@ export const Blogs = () => {
               key={blog.id}
               id={blog.id}
               authorName={blog.author.name || "Anonymous"}
+              authorId={blog.author.id}
               title={blog.title}
               content={blog.content}
               publishedDate={formatPublishedDate(blog.createdAt)}
