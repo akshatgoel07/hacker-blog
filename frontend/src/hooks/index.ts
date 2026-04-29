@@ -185,6 +185,61 @@ export const useToggleBookmark = () => {
   });
 };
 
+export interface Comment {
+  id: string;
+  content: string;
+  createdAt: string;
+  author: { id: string; name: string };
+}
+
+export const useComments = (postId: string | undefined) => {
+  const { data, isLoading } = useQuery({
+    queryKey: ["comments", postId],
+    queryFn: async () => {
+      const res = await axios.get(
+        `${BACKEND_URL}/api/v1/blog/${postId}/comments`,
+      );
+      return (res.data.comments || []) as Comment[];
+    },
+    enabled: !!postId,
+    staleTime: 15_000,
+  });
+  return { loading: isLoading, comments: data ?? [] };
+};
+
+export const useAddComment = (postId: string) => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (content: string) => {
+      const res = await axios.post(
+        `${BACKEND_URL}/api/v1/blog/${postId}/comments`,
+        { content },
+        { headers: authHeader() },
+      );
+      return res.data.comment as Comment;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["comments", postId] });
+    },
+  });
+};
+
+export const useDeleteComment = (postId: string) => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (commentId: string) => {
+      await axios.delete(
+        `${BACKEND_URL}/api/v1/blog/${postId}/comments/${commentId}`,
+        { headers: authHeader() },
+      );
+      return commentId;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["comments", postId] });
+    },
+  });
+};
+
 export const useDeletePost = () => {
   const qc = useQueryClient();
   return useMutation({

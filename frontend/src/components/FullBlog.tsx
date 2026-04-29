@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { useMemo } from "react";
 import { Blog, useBookmarks, useRelatedBlogs, useToggleBookmark } from "../hooks";
 import { Appbar } from "./Appbar";
+import { Comments } from "./Comments";
 import { formatPublishedDate } from "../lib/date";
 import rehypeHighlight from "rehype-highlight";
 
@@ -142,6 +143,8 @@ export const FullBlog = ({ blog }: { blog: Blog }) => {
         <div className="text-center font-smallcaps text-[12px] text-sepia tracking-[0.4em] mt-12">
           ❦ ❦ ❦
         </div>
+
+        <Comments postId={String(blog.id)} postAuthorId={blog.author?.id} />
 
         {related.length > 0 && (
           <section className="mt-14">
