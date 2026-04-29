@@ -4,6 +4,7 @@ import { withAccelerate } from "@prisma/extension-accelerate";
 import { decode, sign, verify } from "hono/jwt";
 import { signupInput, signinInput } from "@100xdevs/medium-common";
 import { authMiddleware } from "../middleware/middleware";
+import { hashPassword, isHashed, verifyPassword } from "../lib/password";
 
 export const userRouter = new Hono<{
   Bindings: {
@@ -58,17 +59,17 @@ userRouter.post("/signup", async (c) => {
   }).$extends(withAccelerate());
 
   try {
+    const passwordHash = await hashPassword(body.password);
     const user = await prisma.user.create({
       data: {
         name: body.username,
-        password: body.password,
+        password: passwordHash,
         email: body.email,
       },
     });
     const token = await sign({ id: user.id }, c.env.JWT_SECRET);
     return c.json(token);
   } catch (e) {
-    console.log(e);
     c.status(411);
     return c.json({
       message: "Error creating user. Email might already be registered.",
@@ -112,10 +113,18 @@ userRouter.post("/signin", async (c) => {
       return c.json({ message: "Invalid credentials" });
     }
 
-    // Add password verification
-    if (user.password !== body.password) {
+    const ok = await verifyPassword(body.password, user.password);
+    if (!ok) {
       c.status(401);
       return c.json({ message: "Invalid credentials" });
+    }
+
+    if (!isHashed(user.password)) {
+      const upgraded = await hashPassword(body.password);
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { password: upgraded },
+      });
     }
 
     const jwt = await sign({ id: user.id }, c.env.JWT_SECRET);

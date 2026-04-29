@@ -24,7 +24,7 @@ expiry, CORS is permissive, no rate limiting.
 
 ## Priority 0 — Security blockers
 
-- [ ] **Hash passwords (lazy migration)** — Web Crypto PBKDF2-SHA256, 100k iterations,
+- [x] **Hash passwords (lazy migration)** — Web Crypto PBKDF2-SHA256, 100k iterations,
       per-user salt. Store as `pbkdf2$<iter>$<saltB64>$<hashB64>`. On signin: detect
       legacy plaintext, compare, rehash, persist. On signup: hash before insert.
       File: `backend/src/lib/password.ts`, edits to `user.ts`.
