@@ -4,6 +4,7 @@ import { Signup } from "./pages/Signup";
 import { Signin } from "./pages/Signin";
 import { Blogs } from "./pages/Blogs";
 import { Landing } from "./pages/Landing";
+import { NotFound } from "./pages/NotFound";
 import { Toaster } from "@/components/ui/toaster";
 import { Spinner } from "./components/Spinner";
 
@@ -41,6 +42,7 @@ function App() {
           <Route path="/edit/:id" element={<Publish />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/u/:id" element={<AuthorProfile />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
     </BrowserRouter>

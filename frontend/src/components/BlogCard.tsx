@@ -27,10 +27,10 @@ export const BlogCard = memo(function BlogCard({
   content,
   publishedDate,
 }: BlogCardProps) {
-  const minutes = useMemo(
-    () => Math.max(1, Math.ceil(content.length / 800)),
-    [content],
-  );
+  const minutes = useMemo(() => {
+    const words = content.trim().split(/\s+/).filter(Boolean).length;
+    return Math.max(1, Math.round(words / 225));
+  }, [content]);
   const excerpt = useMemo(
     () => stripMarkdown(content).slice(0, 220).trim() + "…",
     [content],

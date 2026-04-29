@@ -35,6 +35,24 @@ export const Blogs = () => {
           Front Page
         </h2>
         <hr className="news-rule-double my-6" />
+        {!loading && blogs.length === 0 && (
+          <div className="text-center py-16">
+            <p className="font-display text-2xl text-ink italic mb-2">
+              No issue today.
+            </p>
+            <p className="font-serif text-ink-soft">
+              No stories have been filed yet. Check back tomorrow — or be the
+              first to{" "}
+              <a
+                href="/publish"
+                className="text-sepia underline decoration-1 underline-offset-4 hover:text-sepia-dark"
+              >
+                file one
+              </a>
+              .
+            </p>
+          </div>
+        )}
         <div className="flex flex-col items-center">
           {blogs.map((blog) => (
             <BlogCard

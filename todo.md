@@ -205,11 +205,17 @@ expiry, CORS is permissive, no rate limiting.
       published posts with edit/delete buttons (depends on P2 drafts/edit/delete).
 - [ ] **OG image generator** — Cloudflare Worker route that returns an SVG/PNG OG
       image with title + author + parchment background.
-- [ ] **Reading-time accuracy** — Replace `length / 100` with a word-count based
+- [x] **Reading-time accuracy** — Replace `length / 100` with a word-count based
       estimate (~225 wpm).
-- [ ] **Empty states** — `/blogs` with zero posts: "No issue today. Check back
+      *`words = content.trim().split(/\s+/).filter(Boolean).length;
+      minutes = max(1, round(words / 225))`. Memoized.*
+- [x] **Empty states** — `/blogs` with zero posts: "No issue today. Check back
       tomorrow." `/profile` with zero drafts: "Your column is blank…".
-- [ ] **404 page** — `Route path="*"` with newspaper-style "Story Not Found".
+      *Both done. Drafts empty state was added in iter 13; /blogs
+      empty state added now.*
+- [x] **404 page** — `Route path="*"` with newspaper-style "Story Not Found".
+      *NotFound page with "Stop the Press / 404 / Story not found" + CTAs
+      to Front Page and Masthead.*
 - [ ] **Dark mode toggle** — CSS vars are already there (`.dark`). Just need a
       toggle in the masthead and persistence in localStorage.
 
