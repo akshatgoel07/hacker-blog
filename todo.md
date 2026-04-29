@@ -200,8 +200,15 @@ expiry, CORS is permissive, no rate limiting.
       checking) and added `skipLibCheck` + `noEmit` to backend
       tsconfig. Lint not yet -- backend has no eslint config.*
 - [ ] **Husky + lint-staged** — Pre-commit: `tsc --noEmit` on staged files.
-- [ ] **Vitest + tests** — Backend: route-level tests with a mocked Prisma client.
+- [x] **Vitest + tests** — Backend: route-level tests with a mocked Prisma client.
       Frontend: smoke tests for hooks. Aim for 5–10 starter tests, not coverage.
+      *Started with backend Vitest. 10 tests on `password.ts` covering
+      hash format, salt uniqueness, isHashed detection, hashed
+      match/mismatch, legacy-plaintext match/mismatch, malformed input,
+      and the iteration-count safety floor. Wired into CI: backend
+      job now runs `npm test` after typecheck. Route-level tests
+      (with mocked Prisma) and frontend hook tests deferred to a
+      follow-up since they need wrapper/mock setup.*
 - [ ] **Share types from `common/`** — `common/src/index.ts` already has Zod
       schemas. Export inferred types for `Post`, `BlogListResponse`, etc., and
       consume in frontend hooks instead of redefining `Blog` interface.

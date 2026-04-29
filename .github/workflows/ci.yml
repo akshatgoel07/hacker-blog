@@ -29,7 +29,7 @@ jobs:
       - run: npx vite build
 
   backend:
-    name: Backend (typecheck)
+    name: Backend (typecheck + test)
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -41,3 +41,4 @@ jobs:
           node-version: 20
       - run: npm install --no-audit --no-fund
       - run: npx tsc --noEmit
+      - run: npm test
