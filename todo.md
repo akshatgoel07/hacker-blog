@@ -97,9 +97,15 @@ expiry, CORS is permissive, no rate limiting.
       currently re-renders on every list re-render.
       *`BlogCard` is now `React.memo`; `excerpt` and `minutes` use
       `useMemo` keyed on `content`.*
-- [ ] **Bundle audit** — Three markdown libs in deps (`react-markdown`,
+- [x] **Bundle audit** — Three markdown libs in deps (`react-markdown`,
       `markdown-it`, `editorjs`). Drop `editorjs` (unused) and `markdown-it`
       (only used in Publish render preview — `react-markdown` can do it).
+      *Dropped: `@editorjs/{editorjs,header,list}` (unused),
+      `react-syntax-highlighter` + types (unused; rehype-highlight is
+      the actual renderer), `framer-motion` (unused), `shadcn` (CLI tool,
+      doesn't belong in dependencies). `markdown-it` kept — it's wired
+      into the markdown-editor-lite preview's `renderHTML`. Net dep
+      count: -7. Bundle size flat (those were already tree-shaken).*
 
 ## Priority 2 — Core features
 
