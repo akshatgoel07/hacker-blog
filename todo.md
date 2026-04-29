@@ -55,8 +55,13 @@ expiry, CORS is permissive, no rate limiting.
       raw token). Update frontend to send `Bearer ` prefix.
       *Backend now accepts both forms (back-compat). Frontend prefix migration
       deferred until centralized API client lands (P3).*
-- [ ] **Validate on every route** — Use `@hono/zod-validator` with the schemas in
+- [x] **Validate on every route** — Use `@hono/zod-validator` with the schemas in
       `common/src/index.ts`. Replace ad-hoc `if (!body.email)` checks.
+      *Schemas live in `backend/src/lib/schemas.ts` (the published
+      `@100xdevs/medium-common` package's schemas didn't match the actual
+      API — `name` vs `username`, no length constraints — so we don't
+      depend on it for validation). `validateJson()` helper wraps
+      `zValidator` and returns a 400 with the first issue's message.*
 
 ## Priority 1 — Performance & scale
 

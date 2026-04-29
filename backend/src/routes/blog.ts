@@ -2,6 +2,8 @@ import { PrismaClient } from "@prisma/client/edge";
 import { withAccelerate } from "@prisma/extension-accelerate";
 import { Hono } from "hono";
 import { verify } from "hono/jwt";
+import { createPostSchema, updatePostSchema } from "../lib/schemas";
+import { validateJson } from "../lib/validate";
 
 export const bookRouter = new Hono<{
   Bindings: {
@@ -34,13 +36,13 @@ bookRouter.use("/*", async (c, next) => {
   }
 });
 
-bookRouter.post("/", async (c) => {
+bookRouter.post("/", validateJson(createPostSchema), async (c) => {
   const userId = c.get("userId");
   const prisma = new PrismaClient({
     datasourceUrl: c.env?.DATABASE_URL,
   }).$extends(withAccelerate());
 
-  const body = await c.req.json();
+  const body = c.req.valid("json");
   const post = await prisma.post.create({
     data: {
       title: body.title,
@@ -53,13 +55,13 @@ bookRouter.post("/", async (c) => {
   });
 });
 
-bookRouter.put("/", async (c) => {
+bookRouter.put("/", validateJson(updatePostSchema), async (c) => {
   const userId = c.get("userId");
   const prisma = new PrismaClient({
     datasourceUrl: c.env?.DATABASE_URL,
   }).$extends(withAccelerate());
 
-  const body = await c.req.json();
+  const body = c.req.valid("json");
   const post = await prisma.post.update({
     where: {
       id: body.id,
