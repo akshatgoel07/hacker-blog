@@ -78,8 +78,25 @@ expiry, CORS is permissive, no rate limiting.
       5min gc, no retry on 401, no window-focus refetch. `useBlogs`
       converted to `useInfiniteQuery` (cursor-driven). Hook public
       shapes preserved so Blogs/Blog/FullBlog/related need no changes.*
-- [ ] **Edge cache GET endpoints** — Wrap public GETs in `Cache.match` /
+- [x] **Edge cache GET endpoints** — Wrap public GETs in `Cache.match` /
       `Cache.put` with a 60s TTL. Bust on POST/PUT.
+      *Took the simpler route: send `Cache-Control: public, max-age=60,
+      s-maxage=60` on the four read endpoints and let Cloudflare's
+      automatic edge cache honor it. This required dropping the
+      blanket auth middleware on the blog router so reads are public
+      (matches a public blog's product expectations) — auth still
+      required on POST/PUT via the shared `authMiddleware`. Manual
+      `Cache.put` busting deferred; 60s TTL is short enough that a
+      published post's appearance lag is acceptable.*
+
+      **Side fixes picked up in the same refactor:**
+      - `authMiddleware` returns **401** (not 403) for missing/invalid
+        auth, so the frontend's 401 interceptor actually redirects
+        on expired JWTs (was silently broken)
+      - `authMiddleware` accepts both `authorization` and `Authorization`
+        header casings
+      - `GET /:id` now returns **404** for non-existent posts instead of
+        the bogus 411 Length Required
 - [x] **DB indexes** — Add `@@index([createdAt(sort: Desc)])` and
       `@@index([authorId, createdAt])` on `Post`. Migration only; safe additive.
       *Migration `20260429100158_add_post_indexes` created with
