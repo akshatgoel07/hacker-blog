@@ -33,7 +33,7 @@ expiry, CORS is permissive, no rate limiting.
 - [ ] **Rotate leaked secrets** — Generate new Neon password, JWT secret, Accelerate
       key, Clerk key. Update Cloudflare via `wrangler secret put`. (Skipped from
       autonomous loop — needs human-in-the-loop.) **[SKIP-IN-LOOP]**
-- [ ] **Move secrets out of git** — Add `.env`, `wrangler.toml` to `.gitignore`,
+- [x] **Move secrets out of git** — Add `.env`, `wrangler.toml` to `.gitignore`,
       `git rm --cached` them, write `.env.example` and `wrangler.example.toml` with
       placeholder values, document in README.
 - [ ] **CORS lockdown** — Restrict `cors()` to known origins
@@ -94,8 +94,9 @@ expiry, CORS is permissive, no rate limiting.
 
 ## Priority 3 — DX / CI
 
-- [ ] **`.env.example` files** — Backend + frontend, with placeholder values and
+- [x] **`.env.example` files** — Backend + frontend, with placeholder values and
       one-line comments. README points to them.
+      *Done as part of P0.4 (move secrets out of git).*
 - [ ] **GitHub Actions** — `.github/workflows/ci.yml`: typecheck, lint, build for
       both `frontend` and `backend` on PR + push to main.
 - [ ] **Husky + lint-staged** — Pre-commit: `tsc --noEmit` on staged files.
@@ -108,10 +109,14 @@ expiry, CORS is permissive, no rate limiting.
       consistently. Frontend axios interceptor unwraps.
 - [ ] **Structured logging** — Replace `console.log` with a tiny logger
       (`logger.info({...})`). Forbid raw `console.log` via ESLint rule.
-- [ ] **`wrangler.toml` `main` field** — Add `main = "src/index.ts"` so `wrangler
+- [x] **`wrangler.toml` `main` field** — Add `main = "src/index.ts"` so `wrangler
       dev` doesn't need explicit entry.
-- [ ] **Fix README install steps** — Says `npm start`, actual script is `dev`.
+      *Set in `wrangler.example.toml` (the canonical template). Local
+      `wrangler.toml` is no longer tracked but the user should mirror this
+      when copying.*
+- [x] **Fix README install steps** — Says `npm start`, actual script is `dev`.
       Add Prisma migration step + wrangler dev step.
+      *Done as part of P0.4 README rewrite.*
 
 ## Priority 4 — Polish & UX
 

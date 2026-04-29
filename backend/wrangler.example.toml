@@ -1,0 +1,12 @@
+name = "backend"
+main = "src/index.ts"
+compatibility_date = "2023-12-01"
+
+# Public, non-secret config can live in [vars]. For SECRETS — DATABASE_URL,
+# JWT_SECRET — prefer `wrangler secret put <NAME>` so they end up encrypted in
+# Cloudflare instead of in this file. The placeholders below exist only so
+# `wrangler dev` can pick them up locally; copy this file to wrangler.toml and
+# fill in real values (which are gitignored).
+[vars]
+DATABASE_URL = "prisma://accelerate.prisma-data.net/?api_key=YOUR_ACCELERATE_KEY"
+JWT_SECRET = "change-me-to-a-long-random-string"

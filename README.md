@@ -11,20 +11,40 @@ Hacker Blog is full-stack application designed to allow developers to create and
 
 ## Installation and Setup
 
-### Frontend
-To run the frontend part locally, follow these steps:
-1. Clone this repository with the following command:
-    ```
-    git clone https://github.com/akshatgoel07/hacker-blog.git
-    ```
-2. Navigate to the `frontend` directory.
-3. Install dependencies by running `npm install`.
-4. Start the development server by running `npm start`.
+```
+git clone https://github.com/akshatgoel07/hacker-blog.git
+cd hacker-blog
+```
 
-### Backend
-The backend is hosted on Cloudflare. To run it locally:
-1. Deploy the backend folder on Cloudflare.
-2. Update the backend URL in the `config.ts` file of the frontend.
+### Backend (Cloudflare Worker + Postgres via Prisma)
+
+1. `cd backend && npm install`
+2. Copy the example config and fill in real values (kept out of git):
+    ```
+    cp .env.example .env                       # used by `prisma migrate`
+    cp wrangler.example.toml wrangler.toml     # used at Worker runtime
+    ```
+   - `.env` needs a direct Postgres URL (e.g. Neon).
+   - `wrangler.toml` needs a Prisma Accelerate URL for `DATABASE_URL`
+     and a long random string for `JWT_SECRET`. For production, prefer
+     `wrangler secret put DATABASE_URL` / `wrangler secret put JWT_SECRET`
+     instead of writing them to `wrangler.toml`.
+3. Apply migrations: `npx prisma migrate dev`.
+4. Run locally: `npx wrangler dev src/index.ts --port 8787`.
+
+### Frontend (Vite + React)
+
+1. `cd frontend && npm install`
+2. (Optional) `cp .env.example .env` if you plan to wire OAuth.
+3. Start the dev server: `npm run dev` (defaults to <http://localhost:5173>).
+4. The frontend reads the backend URL from `src/config.ts`. Default points
+   at `http://localhost:8787`; flip the comment to use the deployed Worker.
+
+> **Security note** — earlier commits in this repo's history contain real
+> credentials (Neon connection string, Prisma Accelerate API key, Clerk
+> secret, JWT secret). Anyone with access to the repo can read them. Rotate
+> these credentials before relying on the project in any non-disposable
+> environment.
 
 ## Tech Stack ⚙
 
