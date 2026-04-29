@@ -227,8 +227,14 @@ expiry, CORS is permissive, no rate limiting.
 
 ## Priority 4 — Polish & UX
 
-- [ ] **Restyle Landing page** — Newspaper hero, FeatureGrid as "Sections" of a
+- [x] **Restyle Landing page** — Newspaper hero, FeatureGrid as "Sections" of a
       paper, Footer as colophon.
+      *Rewrote `Landing.tsx` as a single themed page: blackletter
+      masthead, big serif hero "Where developers file the news",
+      "Today's Sections" 2-col grid, blockquote pull quote,
+      colophon footer. Deleted the now-orphaned `HeroSection`,
+      `NewHeroSection`, `Navbar`, `FeatureGrid`, `Footer`
+      components.*
 - [ ] **Restyle Publish page** — Editor framed as a typewriter draft. Title input
       large serif. Submit button matches Auth pages.
 - [ ] **Restyle ProfilePage** — Index card / desk layout. List user's drafts +
