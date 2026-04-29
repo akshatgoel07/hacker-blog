@@ -10,6 +10,13 @@ interface BlogCardProps {
   id: number;
 }
 
+const stripMarkdown = (text: string) =>
+  text
+    .replace(/^#+\s+/gm, "")
+    .replace(/[*_`>~]/g, "")
+    .replace(/\[(.*?)\]\(.*?\)/g, "$1")
+    .replace(/\n+/g, " ");
+
 export const BlogCard = ({
   id,
   authorName,
@@ -17,37 +24,31 @@ export const BlogCard = ({
   content,
   publishedDate,
 }: BlogCardProps) => {
+  const minutes = Math.max(1, Math.ceil(content.length / 800));
+  const excerpt = stripMarkdown(content).slice(0, 220).trim() + "…";
+
   return (
-    <Link to={`/blog/${id}`}>
-      <div className="overflow-hidden rounded-lg bg-white shadow mt-4">
-        <div className="px-4 py-5 sm:p-6  ">
-          <div className=" pb-4 w-screen max-w-screen-md cursor-pointer space-y-4">
-            <div className="flex flex-col gap-y-3 ">
-              <div className="font-base text-sm flex flex-col justify-center ">
-                {authorName}
-              </div>
-              <div className="text-slate-500 text-sm flex justify-center flex-col">
-                {publishedDate}
-              </div>
-            </div>
-            <div className="text-lg font-medium pt-2">{title}</div>
-            <div className="text-sm text-black/60">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {content.slice(0, 100) + "..."}
-              </ReactMarkdown>
-            </div>
-            <div className="text-slate-500 text-sm  pt-4">
-              {`${Math.ceil(content.length / 100)} minute(s) read`}
-            </div>
-          </div>
+    <Link to={`/blog/${id}`} className="block group">
+      <article className="border-b border-ink py-6 max-w-2xl">
+        <div className="font-smallcaps text-[11px] text-ink-soft tracking-widest mb-1">
+          {authorName} · {publishedDate} · {minutes} min read
         </div>
-      </div>
+        <h2 className="font-display text-3xl md:text-4xl text-ink leading-tight capitalize group-hover:underline decoration-1 underline-offset-4">
+          {title}
+        </h2>
+        <div className="mt-3 font-serif text-[15px] text-ink-soft leading-relaxed text-justify hyphens-auto">
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>{excerpt}</ReactMarkdown>
+        </div>
+        <div className="mt-3 font-smallcaps text-[11px] text-sepia tracking-widest">
+          Continue reading →
+        </div>
+      </article>
     </Link>
   );
 };
 
 export function Circle() {
-  return <div className="h-1 w-1 rounded-full bg-slate-500"></div>;
+  return <div className="h-1 w-1 rounded-full bg-ink-soft"></div>;
 }
 
 export function Avatar({
@@ -59,16 +60,16 @@ export function Avatar({
 }) {
   return (
     <div
-      className={`relative inline-flex items-center justify-center overflow-hidden bg-gray-600 rounded-full ${
+      className={`relative inline-flex items-center justify-center overflow-hidden border border-ink bg-parchment-100 ${
         size === "small" ? "w-6 h-6" : "w-10 h-10"
       }`}
     >
       <span
         className={`${
           size === "small" ? "text-xs" : "text-md"
-        } font-base text-gray-600 dark:text-gray-300`}
+        } font-display font-semibold text-ink`}
       >
-        {name[0]}
+        {name?.[0]?.toUpperCase()}
       </span>
     </div>
   );

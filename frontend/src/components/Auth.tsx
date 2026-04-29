@@ -94,37 +94,49 @@ export const Auth = ({ type }: { type: "signup" | "signin" }) => {
       } else {
         throw new Error("Authentication failed");
       }
-    } catch (e) {
+    } catch (e: any) {
       setLoading(false);
-      setErrors({
-        ...errors,
-        email:
-          type === "signin"
-            ? "Invalid email or password"
-            : "Email already exists",
-      });
+      const status = e?.response?.status;
+      const apiMessage = e?.response?.data?.message;
+      let message: string;
+      if (!e?.response) {
+        message = "Couldn't reach the server. Is the backend running?";
+      } else if (apiMessage) {
+        message = apiMessage;
+      } else if (status === 401) {
+        message = "Invalid email or password";
+      } else if (status === 411) {
+        message = "Email already exists";
+      } else {
+        message = "Something went wrong. Please try again.";
+      }
+      setErrors({ ...errors, email: message });
     }
   }
 
   return (
-    <div className="h-screen flex justify-center flex-col">
+    <div className="h-screen flex justify-center flex-col bg-parchment-200">
       <div className="flex justify-center">
-        <div>
-          <div className="px-10">
-            <div className="text-3xl font-extrabold">Create an account</div>
-            <div className="text-slate-500">
-              {type === "signin"
-                ? "Don't have an account?"
-                : "Already have an account?"}
-              <Link
-                className="pl-2 underline"
-                to={type === "signin" ? "/signup" : "/signin"}
-              >
-                {type === "signin" ? "Sign up" : "Sign in"}
-              </Link>
-            </div>
+        <div className="w-full max-w-md px-10">
+          <div className="text-center font-smallcaps text-xs text-sepia tracking-[0.4em] mb-2">
+            ❦ {type === "signin" ? "Press Credentials" : "New Subscription"} ❦
           </div>
-          <div className="pt-8">
+          <h1 className="font-blackletter text-5xl text-center text-ink leading-none">
+            {type === "signin" ? "Sign In" : "Join the Press"}
+          </h1>
+          <hr className="news-rule-double my-4" />
+          <p className="text-center font-serif text-sm text-ink-soft">
+            {type === "signin"
+              ? "New reader of these pages? "
+              : "Already keep a column with us? "}
+            <Link
+              className="font-smallcaps tracking-widest text-sepia underline decoration-1 underline-offset-4 hover:text-sepia-dark"
+              to={type === "signin" ? "/signup" : "/signin"}
+            >
+              {type === "signin" ? "Subscribe" : "Sign in"}
+            </Link>
+          </p>
+          <div className="pt-6">
             {type === "signup" && (
               <LabelledInput
                 label="Username"
@@ -168,17 +180,17 @@ export const Auth = ({ type }: { type: "signup" | "signin" }) => {
               onClick={sendRequest}
               type="button"
               disabled={!isFormValid()}
-              className={`mt-8 w-full text-white ${
+              className={`mt-8 w-full font-smallcaps tracking-[0.3em] text-sm py-3 border ${
                 isFormValid()
-                  ? "bg-gray-800 hover:bg-gray-900"
-                  : "bg-gray-400 cursor-not-allowed"
-              } focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2`}
+                  ? "bg-ink text-parchment-100 border-ink hover:bg-ink-soft"
+                  : "bg-parchment-300 text-ink-faded border-ink-faded cursor-not-allowed"
+              } focus:outline-none focus:ring-1 focus:ring-ink`}
             >
               {loading
-                ? "Loading..."
+                ? "Setting Type…"
                 : type === "signup"
-                ? "Sign up"
-                : "Sign in"}
+                ? "Submit Manuscript"
+                : "Enter the Newsroom"}
             </button>
           </div>
         </div>
@@ -204,19 +216,23 @@ function LabelledInput({
 }: LabelledInputType) {
   return (
     <div>
-      <label className="block mb-2 text-sm text-black font-semibold pt-4">
+      <label className="block mb-1 font-smallcaps text-xs text-ink-soft tracking-widest pt-4">
         {label}
       </label>
       <input
         onChange={onChange}
         type={type || "text"}
-        className={`bg-gray-50 border ${
-          error ? "border-red-500" : "border-gray-300"
-        } text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5`}
+        className={`bg-parchment-100 border ${
+          error ? "border-destructive" : "border-ink"
+        } text-ink font-serif text-base block w-full px-3 py-2 focus:outline-none focus:ring-1 focus:ring-ink`}
         placeholder={placeholder}
         required
       />
-      {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
+      {error && (
+        <p className="mt-1 text-xs italic text-destructive font-serif">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

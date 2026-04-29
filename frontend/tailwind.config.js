@@ -4,6 +4,31 @@ export default {
     content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
   	extend: {
+  		fontFamily: {
+  			blackletter: ['UnifrakturMaguntia', 'serif'],
+  			display: ['"Playfair Display"', 'Georgia', 'serif'],
+  			serif: ['Lora', '"Old Standard TT"', 'Georgia', 'serif'],
+  			smallcaps: ['"Cormorant Garamond"', 'serif'],
+  			ui: ['Inter', 'system-ui', 'sans-serif']
+  		},
+  		colors: {
+  			parchment: {
+  				50: '#fdf9ee',
+  				100: '#f7f1e1',
+  				200: '#f4ecd8',
+  				300: '#e9dec3',
+  				400: '#dccba1'
+  			},
+  			ink: {
+  				DEFAULT: '#1a1410',
+  				soft: '#3b302a',
+  				faded: '#7a6a5d'
+  			},
+  			sepia: {
+  				DEFAULT: '#7a5c3e',
+  				dark: '#5d4426'
+  			}
+  		},
   		animation: {
   			'skew-scroll': 'skew-scroll 20s linear infinite'
   		},

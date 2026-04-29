@@ -2,6 +2,7 @@ import { Appbar } from "../components/Appbar";
 import { BlogCard } from "../components/BlogCard";
 import { BlogSkeleton } from "../components/BlogSkeleton";
 import { useBlogs } from "../hooks";
+import { formatPublishedDate } from "../lib/date";
 
 export const Blogs = () => {
   const { loading, blogs } = useBlogs();
@@ -24,30 +25,29 @@ export const Blogs = () => {
   }
 
   return (
-    <div>
+    <div className="min-h-screen">
       <Appbar />
-
-      <div className="mx-auto max-w-4xl sm:px-6 lg:px-8 flex flex-col justify-center py-12">
-        {/* <div className="flex flex-col gap-y-5 ml-2 py-20">
-          <p className="text-5xl font-medium ">
-            Top Blogs posted on Hacker blog
-          </p>
-          <p className="text-lg text-black/60  ml-2">
-            Learn about trending software trends
-          </p>
-        </div> */}
-        <div className="flex flex-col justify-center items-center">
+      <main className="mx-auto max-w-3xl px-6 md:px-8 py-10">
+        <div className="text-center font-smallcaps text-xs text-sepia tracking-[0.4em]">
+          ❦ Today's Edition ❦
+        </div>
+        <h2 className="text-center font-display text-3xl md:text-4xl text-ink mt-2">
+          Front Page
+        </h2>
+        <hr className="news-rule-double my-6" />
+        <div className="flex flex-col items-center">
           {blogs.map((blog) => (
             <BlogCard
+              key={blog.id}
               id={blog.id}
               authorName={blog.author.name || "Anonymous"}
               title={blog.title}
               content={blog.content}
-              publishedDate={"2nd Feb 2024"}
+              publishedDate={formatPublishedDate(blog.createdAt)}
             />
           ))}
         </div>
-      </div>
+      </main>
     </div>
   );
 };

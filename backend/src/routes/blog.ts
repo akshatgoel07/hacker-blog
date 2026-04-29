@@ -21,7 +21,7 @@ bookRouter.use("/*", async (c, next) => {
     return c.json({ error: "unauthorized" });
   }
   const token = jwt;
-  const payload = await verify(token, c.env.JWT_SECRET);
+  const payload = await verify(token, c.env.JWT_SECRET, "HS256");
   if (!payload) {
     c.status(401);
     return c.json({ error: "unauthorized" });
@@ -82,17 +82,48 @@ bookRouter.get("/bulk", async (c) => {
       content: true,
       title: true,
       id: true,
+      createdAt: true,
       author: {
         select: {
           name: true,
         },
       },
     },
+    orderBy: {
+      createdAt: "desc",
+    },
   });
 
   return c.json({
     post,
   });
+});
+
+bookRouter.get("/related/:id", async (c) => {
+  const id = c.req.param("id");
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.DATABASE_URL,
+  }).$extends(withAccelerate());
+  try {
+    const posts = await prisma.post.findMany({
+      where: {
+        NOT: { id },
+      },
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        createdAt: true,
+        author: { select: { name: true } },
+      },
+      orderBy: { createdAt: "desc" },
+      take: 3,
+    });
+    return c.json({ posts });
+  } catch (e) {
+    c.status(500);
+    return c.json({ message: "Error while fetching related posts" });
+  }
 });
 
 bookRouter.get("/:id", async (c) => {
@@ -109,6 +140,7 @@ bookRouter.get("/:id", async (c) => {
         id: true,
         title: true,
         content: true,
+        createdAt: true,
         author: {
           select: {
             name: true,
@@ -142,11 +174,15 @@ bookRouter.get("/get-blogs-for-user/:userId", async (c) => {
         id: true,
         title: true,
         content: true,
+        createdAt: true,
         author: {
           select: {
             name: true,
           },
         },
+      },
+      orderBy: {
+        createdAt: "desc",
       },
     });
 
