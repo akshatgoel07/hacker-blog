@@ -1,13 +1,24 @@
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Link } from "react-router-dom";
-import { Blog, useRelatedBlogs } from "../hooks";
+import { useMemo } from "react";
+import { Blog, useBookmarks, useRelatedBlogs, useToggleBookmark } from "../hooks";
 import { Appbar } from "./Appbar";
 import { formatPublishedDate } from "../lib/date";
 import rehypeHighlight from "rehype-highlight";
 
 export const FullBlog = ({ blog }: { blog: Blog }) => {
   const { related } = useRelatedBlogs({ id: String(blog.id) });
+  const { bookmarks, enabled: signedIn } = useBookmarks();
+  const toggle = useToggleBookmark();
+  const isBookmarked = useMemo(
+    () => bookmarks.some((b) => String(b.id) === String(blog.id)),
+    [bookmarks, blog.id],
+  );
+  const onToggle = () => {
+    if (!signedIn) return;
+    toggle.mutate({ id: String(blog.id), on: !isBookmarked });
+  };
 
   return (
     <div className="min-h-screen">
@@ -36,6 +47,26 @@ export const FullBlog = ({ blog }: { blog: Blog }) => {
           <span className="mx-3">·</span>
           <span>{formatPublishedDate(blog.createdAt)}</span>
         </div>
+
+        {signedIn && (
+          <div className="flex justify-center mt-4">
+            <button
+              onClick={onToggle}
+              disabled={toggle.isPending}
+              className={`font-smallcaps tracking-[0.3em] text-[11px] px-4 py-1 border transition-colors ${
+                isBookmarked
+                  ? "bg-ink text-parchment-100 border-ink hover:bg-ink-soft"
+                  : "border-ink text-ink hover:bg-ink hover:text-parchment-100"
+              } disabled:opacity-50`}
+            >
+              {toggle.isPending
+                ? "…"
+                : isBookmarked
+                  ? "✓ Clipped to scrapbook"
+                  : "Clip to scrapbook"}
+            </button>
+          </div>
+        )}
 
         <hr className="news-rule-double my-8" />
 

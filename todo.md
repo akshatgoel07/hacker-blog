@@ -174,8 +174,17 @@ expiry, CORS is permissive, no rate limiting.
       masthead nav. Postgres FTS / pg_trgm + ranking is the proper
       next step once the post count is large enough that ILIKE
       slows down -- noted but deferred.*
-- [ ] **Bookmarks** — `Bookmark` join table (userId, postId, createdAt).
+- [x] **Bookmarks** — `Bookmark` join table (userId, postId, createdAt).
       `/bookmarks` page renders saved posts.
+      *`Bookmark` model with `@@unique([userId, postId])` and
+      `@@index([userId, createdAt(Desc)])`. Migration
+      `20260429122416_add_bookmarks` created with `--create-only`
+      per loop.md rule 4. Three endpoints: `GET /bookmarks`,
+      `POST /:id/bookmark` (upsert), `DELETE /:id/bookmark`.
+      Frontend: `Clip to scrapbook` toggle on FullBlog (only when
+      signed in), `/bookmarks` page lazy-loaded, "Scrapbook" link
+      in masthead. **User must run `cd backend && npx prisma
+      migrate deploy` for the endpoints to work at runtime.***
 
 ## Priority 3 — DX / CI
 

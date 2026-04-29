@@ -14,11 +14,24 @@ datasource db {
 }
 
 model User {
-  id       String   @id @default(uuid())
-  email    String   @unique
-  name     String?
-  password String
-  posts    Post[]
+  id        String     @id @default(uuid())
+  email     String     @unique
+  name      String?
+  password  String
+  posts     Post[]
+  bookmarks Bookmark[]
+}
+
+model Bookmark {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    String
+  createdAt DateTime @default(now())
+
+  @@unique([userId, postId])
+  @@index([userId, createdAt(sort: Desc)])
 }
 
 model Post {
@@ -33,4 +46,5 @@ model Post {
 
   @@index([createdAt(sort: Desc), id(sort: Desc)])
   @@index([authorId, createdAt(sort: Desc)])
+  bookmarks Bookmark[]
 }

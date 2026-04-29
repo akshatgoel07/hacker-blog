@@ -93,6 +93,83 @@ bookRouter.delete("/:id", authMiddleware, async (c) => {
   }
 });
 
+bookRouter.get("/bookmarks", authMiddleware, async (c) => {
+  const userId = c.get("userId");
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env?.DATABASE_URL,
+  }).$extends(withAccelerate());
+
+  const rows = await prisma.bookmark.findMany({
+    where: { userId },
+    orderBy: { createdAt: "desc" },
+    select: {
+      createdAt: true,
+      post: {
+        select: {
+          id: true,
+          title: true,
+          content: true,
+          createdAt: true,
+          published: true,
+          author: { select: { id: true, name: true } },
+        },
+      },
+    },
+  });
+
+  c.header("Cache-Control", "no-store");
+  return c.json({
+    posts: rows
+      .filter((r) => r.post && r.post.published)
+      .map((r) => ({
+        ...r.post,
+        bookmarkedAt: r.createdAt,
+      })),
+  });
+});
+
+bookRouter.post("/:id/bookmark", authMiddleware, async (c) => {
+  const userId = c.get("userId");
+  const id = c.req.param("id");
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env?.DATABASE_URL,
+  }).$extends(withAccelerate());
+
+  const post = await prisma.post.findFirst({
+    where: { id, published: true },
+    select: { id: true },
+  });
+  if (!post) {
+    c.status(404);
+    return c.json({ message: "Post not found" });
+  }
+
+  try {
+    await prisma.bookmark.upsert({
+      where: { userId_postId: { userId, postId: id } },
+      create: { userId, postId: id },
+      update: {},
+    });
+    return c.json({ id, bookmarked: true });
+  } catch (e) {
+    c.status(500);
+    return c.json({ message: "Could not save bookmark" });
+  }
+});
+
+bookRouter.delete("/:id/bookmark", authMiddleware, async (c) => {
+  const userId = c.get("userId");
+  const id = c.req.param("id");
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env?.DATABASE_URL,
+  }).$extends(withAccelerate());
+
+  await prisma.bookmark.deleteMany({
+    where: { userId, postId: id },
+  });
+  return c.json({ id, bookmarked: false });
+});
+
 bookRouter.get("/edit/:id", authMiddleware, async (c) => {
   const userId = c.get("userId");
   const id = c.req.param("id");

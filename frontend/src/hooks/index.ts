@@ -146,6 +146,45 @@ export const useEditablePost = (id: string | undefined) => {
   return { loading: isLoading, post: data, error };
 };
 
+export interface BookmarkedPost extends Blog {
+  bookmarkedAt: string;
+}
+
+export const useBookmarks = () => {
+  const enabled = !!localStorage.getItem("token");
+  const { data, isLoading } = useQuery({
+    queryKey: ["bookmarks"],
+    queryFn: async () => {
+      const res = await axios.get(`${BACKEND_URL}/api/v1/blog/bookmarks`, {
+        headers: authHeader(),
+      });
+      return (res.data.posts || []) as BookmarkedPost[];
+    },
+    enabled,
+    staleTime: 60_000,
+  });
+  return { loading: isLoading && enabled, bookmarks: data ?? [], enabled };
+};
+
+export const useToggleBookmark = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, on }: { id: string; on: boolean }) => {
+      const url = `${BACKEND_URL}/api/v1/blog/${id}/bookmark`;
+      const headers = authHeader();
+      if (on) {
+        await axios.post(url, {}, { headers });
+      } else {
+        await axios.delete(url, { headers });
+      }
+      return { id, on };
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["bookmarks"] });
+    },
+  });
+};
+
 export const useDeletePost = () => {
   const qc = useQueryClient();
   return useMutation({

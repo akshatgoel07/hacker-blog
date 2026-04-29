@@ -46,6 +46,9 @@ export const Appbar = () => {
             <Link to="/search" className="hover:underline underline-offset-4 decoration-1">
               Search
             </Link>
+            <Link to="/bookmarks" className="hover:underline underline-offset-4 decoration-1">
+              Scrapbook
+            </Link>
             <Link to="/publish" className="hover:underline underline-offset-4 decoration-1">
               Submit a Story
             </Link>

@@ -23,6 +23,9 @@ const AuthorProfile = lazy(() =>
 const Search = lazy(() =>
   import("./pages/Search").then((m) => ({ default: m.Search })),
 );
+const Bookmarks = lazy(() =>
+  import("./pages/Bookmarks").then((m) => ({ default: m.Bookmarks })),
+);
 
 const PageFallback = () => (
   <div className="min-h-screen flex items-center justify-center bg-parchment-200">
@@ -46,6 +49,7 @@ function App() {
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/u/:id" element={<AuthorProfile />} />
           <Route path="/search" element={<Search />} />
+          <Route path="/bookmarks" element={<Bookmarks />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
