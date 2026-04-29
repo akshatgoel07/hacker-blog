@@ -74,6 +74,28 @@ export const useBlogs = () => {
   };
 };
 
+export interface DraftPost {
+  id: string;
+  title: string;
+  content: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const useDrafts = () => {
+  const { data, isLoading } = useQuery({
+    queryKey: ["drafts"],
+    queryFn: async () => {
+      const res = await axios.get(`${BACKEND_URL}/api/v1/blog/drafts`, {
+        headers: authHeader(),
+      });
+      return (res.data.posts || []) as DraftPost[];
+    },
+    staleTime: 0,
+  });
+  return { loading: isLoading, drafts: data ?? [] };
+};
+
 export const useRelatedBlogs = ({ id }: { id: string }) => {
   const { data, isLoading } = useQuery({
     queryKey: ["blog", id, "related"],

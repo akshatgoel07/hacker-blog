@@ -1,15 +1,17 @@
-// src/pages/ProfilePage.tsx
 "use client";
 
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import axios from "axios";
-import { BACKEND_URL } from "../config";
-import { Appbar } from "../components/Appbar";
-import { useToast } from "../hooks/use-toast";
-
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+
+import { BACKEND_URL } from "../config";
+import { Appbar } from "../components/Appbar";
+import { useToast } from "../hooks/use-toast";
+import { useDrafts } from "../hooks";
+import { formatPublishedDate } from "../lib/date";
 
 import {
   Form,
@@ -37,8 +39,7 @@ export const ProfilePage = () => {
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [profileEmail, setProfileEmail] = useState<string>("");
-  const [userId, setUserId] = useState<string>("");
-  const [userBlogs, setUserBlogs] = useState<any>([]);
+  const { drafts, loading: draftsLoading } = useDrafts();
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
@@ -46,31 +47,6 @@ export const ProfilePage = () => {
     mode: "onChange",
   });
 
-  const fetchBlogsForUser = async () => {
-    try {
-      if (!userId) {
-        toast({
-          title: "User not found",
-          description: "Please try again later.",
-          variant: "destructive",
-        });
-      }
-      const blogs = await axios.get(
-        `${BACKEND_URL}/api/v1/blog/get-blogs-for-user/${userId}`,
-        { headers: { Authorization: localStorage.getItem("token") || "" } },
-      );
-
-      console.log(blogs.data.posts, "blogs for user");
-      setUserBlogs(blogs.data.posts);
-    } catch (error) {
-      console.error(error);
-      toast({
-        title: "Failed to load blogs",
-        description: "Please try again later.",
-        variant: "destructive",
-      });
-    }
-  };
   const fetchProfile = async () => {
     setLoading(true);
     setFetchError(null);
@@ -86,12 +62,9 @@ export const ProfilePage = () => {
       const { data } = await axios.get(`${BACKEND_URL}/api/v1/user/me`, {
         headers: { Authorization: token },
       });
-      setUserId(data.id);
-      console.log(data.id, "data id");
       form.reset({ name: data.name });
       setProfileEmail(data.email);
     } catch (err) {
-      console.error(err);
       setFetchError("Could not load your profile.");
     } finally {
       setLoading(false);
@@ -100,7 +73,6 @@ export const ProfilePage = () => {
 
   useEffect(() => {
     fetchProfile();
-    fetchBlogsForUser();
   }, []);
 
   const onSubmit = async (values: ProfileFormValues) => {
@@ -122,7 +94,6 @@ export const ProfilePage = () => {
         description: "Your name has been saved!",
       });
     } catch (err) {
-      console.error(err);
       toast({
         title: "Update failed",
         description: "Please try again later.",
@@ -135,8 +106,8 @@ export const ProfilePage = () => {
     return (
       <>
         <Appbar />
-        <div className="container mx-auto max-w-md mt-10  rounded-lg">
-          <div className="h-96 w-96 bg-gray-200 p-8 text-center animate-pulse"></div>
+        <div className="container mx-auto max-w-md mt-10 rounded-lg">
+          <div className="h-96 w-96 bg-parchment-300 p-8 text-center animate-pulse"></div>
         </div>
       </>
     );
@@ -146,47 +117,110 @@ export const ProfilePage = () => {
     return (
       <>
         <Appbar />
-        <div className="p-8 text-red-500 text-center">{fetchError}</div>
+        <div className="p-8 text-destructive text-center font-serif italic">
+          {fetchError}
+        </div>
       </>
     );
   }
 
   return (
-    <>
+    <div className="min-h-screen">
       <Appbar />
-      <div className="container mx-auto max-w-md mt-10 p-6 bg-white rounded-lg shadow">
-        <h2 className="text-2xl font-semibold mb-6">Edit Profile</h2>
+      <main className="max-w-2xl mx-auto px-6 md:px-10 py-10">
+        <div className="text-center font-smallcaps text-xs text-sepia tracking-[0.4em] mb-2">
+          ❦ The Editor's Desk ❦
+        </div>
+        <h1 className="text-center font-display text-3xl md:text-4xl text-ink mb-2">
+          Your Column
+        </h1>
+        <hr className="news-rule-double mb-8" />
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Your name" {...field} />
-                  </FormControl>
-                  <FormDescription>
-                    This is the name shown on your profile.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+        <section className="bg-parchment-100 border border-ink p-6 md:p-8 mb-10">
+          <h2 className="font-display text-xl text-ink mb-1">Pen name</h2>
+          <hr className="news-rule-thin mb-4" />
 
-            <div>
-              <FormLabel>Email</FormLabel>
-              <p className="mt-1 text-gray-700">{profileEmail}</p>
-            </div>
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="space-y-5"
+            >
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="font-smallcaps tracking-widest text-xs text-ink-soft">
+                      Name
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Your name"
+                        className="bg-parchment-200 border-ink rounded-none font-serif"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription className="font-serif text-xs italic text-ink-faded">
+                      Shown above every story you publish.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <Button type="submit" disabled={!form.formState.isValid}>
-              Save Changes
-            </Button>
-          </form>
-        </Form>
-      </div>
-    </>
+              <div>
+                <FormLabel className="font-smallcaps tracking-widest text-xs text-ink-soft">
+                  Email
+                </FormLabel>
+                <p className="mt-1 font-serif text-ink">{profileEmail}</p>
+              </div>
+
+              <Button
+                type="submit"
+                disabled={!form.formState.isValid}
+                className="font-smallcaps tracking-[0.3em] text-xs bg-ink text-parchment-100 border border-ink hover:bg-ink-soft rounded-none px-6"
+              >
+                Save changes
+              </Button>
+            </form>
+          </Form>
+        </section>
+
+        <section>
+          <div className="flex items-baseline justify-between mb-1">
+            <h2 className="font-display text-xl text-ink">Drafts in the drawer</h2>
+            <Link
+              to="/publish"
+              className="font-smallcaps tracking-widest text-[11px] text-sepia hover:text-sepia-dark underline decoration-1 underline-offset-4"
+            >
+              New story →
+            </Link>
+          </div>
+          <hr className="news-rule-thin mb-4" />
+
+          {draftsLoading ? (
+            <p className="font-serif italic text-ink-faded">Pulling drafts…</p>
+          ) : drafts.length === 0 ? (
+            <p className="font-serif italic text-ink-faded">
+              Your drawer is empty. Start a story and "Save as draft" to keep it
+              here.
+            </p>
+          ) : (
+            <ul className="divide-y divide-ink">
+              {drafts.map((d) => (
+                <li key={d.id} className="py-3">
+                  <div className="font-display text-lg text-ink leading-snug capitalize">
+                    {d.title || <em className="italic">Untitled</em>}
+                  </div>
+                  <div className="font-smallcaps text-[11px] text-ink-soft tracking-widest mt-1">
+                    Last edited {formatPublishedDate(d.updatedAt)}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      </main>
+    </div>
   );
 };
