@@ -1,116 +1,91 @@
-import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { BACKEND_URL } from "../config";
 
-
 export interface Blog {
-    "content": string;
-    "title": string;
-    "id": number
-    "createdAt"?: string
-    "author": {
-        "name": string
-    }
-}
-
-export const useBlog = ({ id }: { id: string }) => {
-    const [loading, setLoading] = useState(true);
-    const [blog, setBlog] = useState<Blog>();
-
-    useEffect(() => {
-        axios.get(`${BACKEND_URL}/api/v1/blog/${id}`, {
-            headers: {
-                Authorization: localStorage.getItem("token")
-            }
-        })
-            .then(response => {
-                setBlog(response.data.post);
-                setLoading(false);
-            })
-    }, [id])
-
-    return {
-        loading,
-        blog
-    }
-
-}
-export const useRelatedBlogs = ({ id }: { id: string }) => {
-    const [loading, setLoading] = useState(true);
-    const [related, setRelated] = useState<Blog[]>([]);
-
-    useEffect(() => {
-        if (!id) return;
-        axios.get(`${BACKEND_URL}/api/v1/blog/related/${id}`, {
-            headers: {
-                Authorization: localStorage.getItem("token")
-            }
-        })
-            .then(response => {
-                setRelated(response.data.posts || []);
-                setLoading(false);
-            })
-            .catch(() => setLoading(false));
-    }, [id]);
-
-    return { loading, related };
+  content: string;
+  title: string;
+  id: number;
+  createdAt?: string;
+  author: {
+    name: string;
+  };
 }
 
 const PAGE_SIZE = 20;
 
+const authHeader = () => ({
+  Authorization: localStorage.getItem("token") ?? "",
+});
+
+export const useBlog = ({ id }: { id: string }) => {
+  const { data, isLoading } = useQuery({
+    queryKey: ["blog", id],
+    queryFn: async () => {
+      const res = await axios.get(`${BACKEND_URL}/api/v1/blog/${id}`, {
+        headers: authHeader(),
+      });
+      return res.data.post as Blog;
+    },
+    enabled: !!id,
+  });
+  return { loading: isLoading, blog: data };
+};
+
+interface BlogsPage {
+  posts: Blog[];
+  nextCursor: string | null;
+}
+
 export const useBlogs = () => {
-    const [loading, setLoading] = useState(true);
-    const [loadingMore, setLoadingMore] = useState(false);
-    const [blogs, setBlogs] = useState<Blog[]>([]);
-    const [cursor, setCursor] = useState<string | null>(null);
-    const [hasMore, setHasMore] = useState(false);
+  const {
+    data,
+    isLoading,
+    isFetchingNextPage,
+    fetchNextPage,
+    hasNextPage,
+  } = useInfiniteQuery({
+    queryKey: ["blogs"],
+    initialPageParam: null as string | null,
+    queryFn: async ({ pageParam }) => {
+      const url = pageParam
+        ? `${BACKEND_URL}/api/v1/blog/bulk?cursor=${encodeURIComponent(pageParam)}&limit=${PAGE_SIZE}`
+        : `${BACKEND_URL}/api/v1/blog/bulk?limit=${PAGE_SIZE}`;
+      const res = await axios.get(url, { headers: authHeader() });
+      const d = res.data || {};
+      return {
+        posts: (d.posts ?? d.post ?? []) as Blog[],
+        nextCursor: (d.nextCursor ?? null) as string | null,
+      } satisfies BlogsPage;
+    },
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
+  });
 
-    const fetchPage = useCallback(async (after: string | null) => {
-        const url = after
-            ? `${BACKEND_URL}/api/v1/blog/bulk?cursor=${encodeURIComponent(after)}&limit=${PAGE_SIZE}`
-            : `${BACKEND_URL}/api/v1/blog/bulk?limit=${PAGE_SIZE}`;
-        const res = await axios.get(url, {
-            headers: { Authorization: localStorage.getItem("token") },
-        });
-        const data = res.data || {};
-        const posts: Blog[] = data.posts ?? data.post ?? [];
-        const nextCursor: string | null = data.nextCursor ?? null;
-        return { posts, nextCursor };
-    }, []);
+  const blogs = data?.pages.flatMap((p) => p.posts) ?? [];
 
-    useEffect(() => {
-        let cancelled = false;
-        setLoading(true);
-        fetchPage(null)
-            .then(({ posts, nextCursor }) => {
-                if (cancelled) return;
-                setBlogs(posts);
-                setCursor(nextCursor);
-                setHasMore(!!nextCursor);
-            })
-            .catch(() => {
-                if (!cancelled) setHasMore(false);
-            })
-            .finally(() => {
-                if (!cancelled) setLoading(false);
-            });
-        return () => {
-            cancelled = true;
-        };
-    }, [fetchPage]);
+  return {
+    loading: isLoading,
+    loadingMore: isFetchingNextPage,
+    blogs,
+    hasMore: !!hasNextPage,
+    loadMore: () => {
+      void fetchNextPage();
+    },
+  };
+};
 
-    const loadMore = useCallback(async () => {
-        if (!cursor || loadingMore) return;
-        setLoadingMore(true);
-        try {
-            const { posts, nextCursor } = await fetchPage(cursor);
-            setBlogs((prev) => [...prev, ...posts]);
-            setCursor(nextCursor);
-            setHasMore(!!nextCursor);
-        } finally {
-            setLoadingMore(false);
-        }
-    }, [cursor, loadingMore, fetchPage]);
-
-    return { loading, loadingMore, blogs, hasMore, loadMore };
+export const useRelatedBlogs = ({ id }: { id: string }) => {
+  const { data, isLoading } = useQuery({
+    queryKey: ["blog", id, "related"],
+    queryFn: async () => {
+      const res = await axios.get(
+        `${BACKEND_URL}/api/v1/blog/related/${id}`,
+        { headers: authHeader() },
+      );
+      return (res.data.posts || []) as Blog[];
+    },
+    enabled: !!id,
+    staleTime: 60_000,
+  });
+  return { loading: isLoading, related: data ?? [] };
 };

@@ -71,9 +71,13 @@ expiry, CORS is permissive, no rate limiting.
       *Response keeps the legacy `post` key alongside `posts` for one-version
       back-compat. UI uses a "Read earlier issues" button (newspaper-themed)
       and an "End of edition" footer when `nextCursor` is null.*
-- [ ] **TanStack Query (React Query)** — Replace ad-hoc `useEffect` data fetching
+- [x] **TanStack Query (React Query)** — Replace ad-hoc `useEffect` data fetching
       in `useBlog`, `useBlogs`, `useRelatedBlogs`. Stale-while-revalidate, dedupe
       requests, cache across navigations.
+      *`@tanstack/react-query` v5. `QueryClient` configured with 30s stale,
+      5min gc, no retry on 401, no window-focus refetch. `useBlogs`
+      converted to `useInfiniteQuery` (cursor-driven). Hook public
+      shapes preserved so Blogs/Blog/FullBlog/related need no changes.*
 - [ ] **Edge cache GET endpoints** — Wrap public GETs in `Cache.match` /
       `Cache.put` with a 60s TTL. Bust on POST/PUT.
 - [x] **DB indexes** — Add `@@index([createdAt(sort: Desc)])` and
