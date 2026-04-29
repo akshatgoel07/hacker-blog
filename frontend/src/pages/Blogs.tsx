@@ -5,7 +5,7 @@ import { useBlogs } from "../hooks";
 import { formatPublishedDate } from "../lib/date";
 
 export const Blogs = () => {
-  const { loading, blogs } = useBlogs();
+  const { loading, loadingMore, blogs, hasMore, loadMore } = useBlogs();
 
   if (loading) {
     return (
@@ -47,6 +47,22 @@ export const Blogs = () => {
             />
           ))}
         </div>
+        {hasMore && (
+          <div className="flex justify-center mt-8">
+            <button
+              onClick={loadMore}
+              disabled={loadingMore}
+              className="font-smallcaps tracking-[0.3em] text-xs px-6 py-2 border border-ink text-ink hover:bg-ink hover:text-parchment-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {loadingMore ? "Setting type…" : "Read earlier issues"}
+            </button>
+          </div>
+        )}
+        {!hasMore && blogs.length > 0 && (
+          <div className="text-center mt-10 font-smallcaps text-xs text-sepia tracking-[0.4em]">
+            ❦ End of edition ❦
+          </div>
+        )}
       </main>
     </div>
   );

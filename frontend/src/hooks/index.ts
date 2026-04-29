@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { BACKEND_URL } from "../config";
 
@@ -56,27 +56,61 @@ export const useRelatedBlogs = ({ id }: { id: string }) => {
     return { loading, related };
 }
 
+const PAGE_SIZE = 20;
+
 export const useBlogs = () => {
     const [loading, setLoading] = useState(true);
+    const [loadingMore, setLoadingMore] = useState(false);
     const [blogs, setBlogs] = useState<Blog[]>([]);
-    useEffect(() => {
-        axios.get(`${BACKEND_URL}/api/v1/blog/bulk`, {
-            headers: {
-                Authorization: localStorage.getItem("token")   
-            }
-           
-        })
-            .then(response => {
-                setBlogs(response.data.post);
-                setLoading(false);
-                console.log(response.data.post)
-            })
-            // console.log(localStorage.getItem("token")) ;
-    }, [])
+    const [cursor, setCursor] = useState<string | null>(null);
+    const [hasMore, setHasMore] = useState(false);
 
-    return {
-        
-        loading,
-        blogs
-    }
-}
+    const fetchPage = useCallback(async (after: string | null) => {
+        const url = after
+            ? `${BACKEND_URL}/api/v1/blog/bulk?cursor=${encodeURIComponent(after)}&limit=${PAGE_SIZE}`
+            : `${BACKEND_URL}/api/v1/blog/bulk?limit=${PAGE_SIZE}`;
+        const res = await axios.get(url, {
+            headers: { Authorization: localStorage.getItem("token") },
+        });
+        const data = res.data || {};
+        const posts: Blog[] = data.posts ?? data.post ?? [];
+        const nextCursor: string | null = data.nextCursor ?? null;
+        return { posts, nextCursor };
+    }, []);
+
+    useEffect(() => {
+        let cancelled = false;
+        setLoading(true);
+        fetchPage(null)
+            .then(({ posts, nextCursor }) => {
+                if (cancelled) return;
+                setBlogs(posts);
+                setCursor(nextCursor);
+                setHasMore(!!nextCursor);
+            })
+            .catch(() => {
+                if (!cancelled) setHasMore(false);
+            })
+            .finally(() => {
+                if (!cancelled) setLoading(false);
+            });
+        return () => {
+            cancelled = true;
+        };
+    }, [fetchPage]);
+
+    const loadMore = useCallback(async () => {
+        if (!cursor || loadingMore) return;
+        setLoadingMore(true);
+        try {
+            const { posts, nextCursor } = await fetchPage(cursor);
+            setBlogs((prev) => [...prev, ...posts]);
+            setCursor(nextCursor);
+            setHasMore(!!nextCursor);
+        } finally {
+            setLoadingMore(false);
+        }
+    }, [cursor, loadingMore, fetchPage]);
+
+    return { loading, loadingMore, blogs, hasMore, loadMore };
+};

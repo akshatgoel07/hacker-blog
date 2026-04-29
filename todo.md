@@ -65,9 +65,12 @@ expiry, CORS is permissive, no rate limiting.
 
 ## Priority 1 — Performance & scale
 
-- [ ] **Paginate `/api/v1/blog/bulk`** — Cursor-based: `?cursor=<id>&limit=20`,
+- [x] **Paginate `/api/v1/blog/bulk`** — Cursor-based: `?cursor=<id>&limit=20`,
       response `{ posts, nextCursor }`. Update `useBlogs` hook to support
       "load more" / infinite scroll.
+      *Response keeps the legacy `post` key alongside `posts` for one-version
+      back-compat. UI uses a "Read earlier issues" button (newspaper-themed)
+      and an "End of edition" footer when `nextCursor` is null.*
 - [ ] **TanStack Query (React Query)** — Replace ad-hoc `useEffect` data fetching
       in `useBlog`, `useBlogs`, `useRelatedBlogs`. Stale-while-revalidate, dedupe
       requests, cache across navigations.
@@ -148,6 +151,17 @@ expiry, CORS is permissive, no rate limiting.
 - [ ] **404 page** — `Route path="*"` with newspaper-style "Story Not Found".
 - [ ] **Dark mode toggle** — CSS vars are already there (`.dark`). Just need a
       toggle in the masthead and persistence in localStorage.
+
+## Discovered issues (file as you find them, fix when relevant)
+
+- [ ] **Some post contents contain raw control characters** — `jq` chokes
+      parsing `/bulk` for at least one existing post. Either Prisma is
+      surfacing unescaped `\n`/`\r` in `Post.content`, or the content was
+      written that way during POST. Repro: `curl '/bulk?limit=3' | jq .`
+      with the current 8 posts. Fix likely in the create/update path:
+      strip or escape disallowed control chars before insert.
+
+---
 
 ## Priority 5 — Future / large
 

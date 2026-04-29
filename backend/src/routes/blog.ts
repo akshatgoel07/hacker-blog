@@ -82,7 +82,15 @@ bookRouter.get("/bulk", async (c) => {
     datasourceUrl: c.env?.DATABASE_URL,
   }).$extends(withAccelerate());
 
-  const post = await prisma.post.findMany({
+  const cursor = c.req.query("cursor");
+  const rawLimit = Number(c.req.query("limit") ?? "20");
+  const limit = Number.isFinite(rawLimit)
+    ? Math.min(50, Math.max(1, Math.floor(rawLimit)))
+    : 20;
+
+  const rows = await prisma.post.findMany({
+    take: limit + 1,
+    ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
     select: {
       content: true,
       title: true,
@@ -94,13 +102,17 @@ bookRouter.get("/bulk", async (c) => {
         },
       },
     },
-    orderBy: {
-      createdAt: "desc",
-    },
+    orderBy: [{ createdAt: "desc" }, { id: "desc" }],
   });
 
+  const hasMore = rows.length > limit;
+  const posts = hasMore ? rows.slice(0, limit) : rows;
+  const nextCursor = hasMore ? posts[posts.length - 1].id : null;
+
   return c.json({
-    post,
+    posts,
+    nextCursor,
+    post: posts,
   });
 });
 
