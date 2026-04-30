@@ -10,18 +10,44 @@ import {
   updateProfileSchema,
 } from "../lib/schemas";
 import { validateJson } from "../lib/validate";
+import { clientIp, rateLimit } from "../lib/rateLimit";
 
 const TOKEN_TTL_SECONDS = 60 * 60 * 24;
+const AUTH_RATE_LIMIT = 10;
+const AUTH_RATE_WINDOW = 60;
 
 export const userRouter = new Hono<{
   Bindings: {
     DATABASE_URL: string;
     JWT_SECRET: string;
+    RATE_LIMITER?: any;
   };
   Variables: {
     userId: string;
   };
 }>();
+
+const enforceAuthRateLimit = async (c: any, scope: string) => {
+  const ip = clientIp(c);
+  const result = await rateLimit({
+    kv: c.env?.RATE_LIMITER,
+    key: `auth:${scope}:${ip}`,
+    limit: AUTH_RATE_LIMIT,
+    windowSeconds: AUTH_RATE_WINDOW,
+  });
+  c.header("X-RateLimit-Limit", String(AUTH_RATE_LIMIT));
+  c.header("X-RateLimit-Remaining", String(result.remaining));
+  c.header("X-RateLimit-Reset", String(result.resetAt));
+  if (!result.ok) {
+    const retryAfter = Math.max(1, result.resetAt - Math.floor(Date.now() / 1000));
+    c.header("Retry-After", String(retryAfter));
+    c.status(429);
+    return c.json({
+      message: `Too many attempts. Try again in ${retryAfter}s.`,
+    });
+  }
+  return null;
+};
 
 const issueToken = async (userId: string, secret: string) => {
   const now = Math.floor(Date.now() / 1000);
@@ -29,6 +55,8 @@ const issueToken = async (userId: string, secret: string) => {
 };
 
 userRouter.post("/signup", validateJson(signupSchema), async (c) => {
+  const limited = await enforceAuthRateLimit(c, "signup");
+  if (limited) return limited;
   const body = c.req.valid("json");
   const prisma = new PrismaClient({
     datasourceUrl: c.env?.DATABASE_URL,
@@ -54,6 +82,8 @@ userRouter.post("/signup", validateJson(signupSchema), async (c) => {
 });
 
 userRouter.post("/signin", validateJson(signinSchema), async (c) => {
+  const limited = await enforceAuthRateLimit(c, "signin");
+  if (limited) return limited;
   const body = c.req.valid("json");
   const prisma = new PrismaClient({
     datasourceUrl: c.env?.DATABASE_URL,

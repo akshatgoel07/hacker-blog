@@ -48,9 +48,21 @@ expiry, CORS is permissive, no rate limiting.
       `console.log("control reached after body")` debug line. The
       ESLint rule for backend is deferred until a backend lint config
       exists (currently only frontend has one).*
-- [ ] **Rate limiting** — Cloudflare-native: use `@upstash/ratelimit` with KV, or a
+- [x] **Rate limiting** — Cloudflare-native: use `@upstash/ratelimit` with KV, or a
       simple per-IP token bucket via Workers KV. Apply to `/signup` and `/signin`
       (5 req/min). **[L]**
+      *Per-IP fixed-window counter at 10/60s on /signup and /signin.
+      `backend/src/lib/rateLimit.ts` reads/writes a Workers KV
+      namespace bound as `RATE_LIMITER` if present, falling back to
+      a per-isolate Map (imperfect but graceful) when KV isn't bound.
+      Sets `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-
+      Reset`, and `Retry-After` headers. Returns 429 with a friendly
+      message past the limit. To turn on the proper KV-backed version
+      in production:
+        1. wrangler kv:namespace create RATE_LIMITER
+        2. wrangler kv:namespace create RATE_LIMITER --preview
+        3. uncomment + paste ids in `wrangler.toml` (template in
+           `wrangler.example.toml`).*
 - [x] **Standard auth header** — Accept `Authorization: Bearer <jwt>` (currently
       raw token). Update frontend to send `Bearer ` prefix.
       *Backend now accepts both forms (back-compat). Frontend prefix migration

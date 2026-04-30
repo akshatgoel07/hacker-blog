@@ -13,3 +13,16 @@ JWT_SECRET = "change-me-to-a-long-random-string"
 # Comma-separated list of origins allowed to call /api/*. If unset, only
 # http://localhost:5173 is allowed. Add your deployed frontend domain here.
 ALLOWED_ORIGINS = "http://localhost:5173"
+
+# Optional Cloudflare Workers KV binding used for per-IP rate limiting on
+# /signin and /signup. To turn on:
+#   1. wrangler kv:namespace create RATE_LIMITER
+#   2. wrangler kv:namespace create RATE_LIMITER --preview
+#   3. paste the resulting ids below and uncomment.
+# Without this binding the worker falls back to a per-isolate in-memory
+# counter -- imperfect (each isolate has its own bucket) but better than
+# nothing.
+# [[kv_namespaces]]
+# binding = "RATE_LIMITER"
+# id = "..."
+# preview_id = "..."
