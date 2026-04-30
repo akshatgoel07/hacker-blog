@@ -29,10 +29,23 @@ export const updateProfileSchema = z.object({
 });
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
 
+const tagsSchema = z
+  .array(
+    z
+      .string()
+      .trim()
+      .min(1)
+      .max(40)
+      .regex(/^[a-z0-9][a-z0-9-]*$/i, "Tags must be alphanumeric or dashes"),
+  )
+  .max(8, "At most 8 tags per post")
+  .optional();
+
 export const createPostSchema = z.object({
   title: z.string().trim().min(1, "Title is required").max(200),
   content: z.string().min(1, "Content is required"),
   published: z.boolean().optional(),
+  tags: tagsSchema,
 });
 export type CreatePostInput = z.infer<typeof createPostSchema>;
 
@@ -41,6 +54,7 @@ export const updatePostSchema = z.object({
   title: z.string().trim().min(1).max(200).optional(),
   content: z.string().min(1).optional(),
   published: z.boolean().optional(),
+  tags: tagsSchema,
 });
 export type UpdatePostInput = z.infer<typeof updatePostSchema>;
 

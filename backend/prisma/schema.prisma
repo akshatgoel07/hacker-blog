@@ -49,6 +49,16 @@ model Post {
   @@index([authorId, createdAt(sort: Desc)])
   bookmarks Bookmark[]
   comments  Comment[]
+  tags      Tag[]
+}
+
+model Tag {
+  id    String @id @default(uuid())
+  slug  String @unique
+  name  String
+  posts Post[]
+
+  @@index([slug])
 }
 
 model Comment {

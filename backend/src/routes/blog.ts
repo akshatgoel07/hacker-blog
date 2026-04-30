@@ -8,6 +8,7 @@ import {
   updatePostSchema,
 } from "../lib/schemas";
 import { validateJson } from "../lib/validate";
+import { upsertTagsByName } from "../lib/tags";
 
 export const bookRouter = new Hono<{
   Bindings: {
@@ -39,12 +40,16 @@ bookRouter.post(
     }).$extends(withAccelerate());
 
     const body = c.req.valid("json");
+    const tags = await upsertTagsByName(prisma, body.tags);
     const post = await prisma.post.create({
       data: {
         title: body.title,
         content: body.content,
         authorId: userId,
         published: body.published ?? true,
+        ...(tags.length > 0 && {
+          tags: { connect: tags.map((t) => ({ id: t.id })) },
+        }),
       },
     });
     return c.json({ id: post.id, published: post.published });
@@ -62,18 +67,45 @@ bookRouter.put(
     }).$extends(withAccelerate());
 
     const body = c.req.valid("json");
+    let tagOps = {};
+    if (body.tags !== undefined) {
+      const tags = await upsertTagsByName(prisma, body.tags);
+      tagOps = { tags: { set: tags.map((t) => ({ id: t.id })) } };
+    }
     const post = await prisma.post.update({
       where: { id: body.id, authorId: userId },
       data: {
         ...(body.title !== undefined && { title: body.title }),
         ...(body.content !== undefined && { content: body.content }),
         ...(body.published !== undefined && { published: body.published }),
+        ...tagOps,
       },
     });
 
     return c.json({ id: post.id, published: post.published });
   },
 );
+
+bookRouter.get("/tags", async (c) => {
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env?.DATABASE_URL,
+  }).$extends(withAccelerate());
+  const tags = await prisma.tag.findMany({
+    select: {
+      id: true,
+      slug: true,
+      name: true,
+      _count: { select: { posts: { where: { published: true } } } },
+    },
+    orderBy: { slug: "asc" },
+  });
+  c.header("Cache-Control", "public, max-age=300, s-maxage=300");
+  return c.json({
+    tags: tags
+      .filter((t) => t._count.posts > 0)
+      .map((t) => ({ id: t.id, slug: t.slug, name: t.name, count: t._count.posts })),
+  });
+});
 
 bookRouter.get("/:postId/comments", async (c) => {
   const postId = c.req.param("postId");
@@ -369,8 +401,12 @@ bookRouter.get("/bulk", async (c) => {
     ? Math.min(50, Math.max(1, Math.floor(rawLimit)))
     : 20;
 
+  const tagSlug = c.req.query("tag");
   const rows = await prisma.post.findMany({
-    where: { published: true },
+    where: {
+      published: true,
+      ...(tagSlug && { tags: { some: { slug: tagSlug } } }),
+    },
     take: limit + 1,
     ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
     select: {
@@ -379,6 +415,7 @@ bookRouter.get("/bulk", async (c) => {
       id: true,
       createdAt: true,
       author: { select: { id: true, name: true } },
+      tags: { select: { id: true, slug: true, name: true } },
     },
     orderBy: [{ createdAt: "desc" }, { id: "desc" }],
   });
