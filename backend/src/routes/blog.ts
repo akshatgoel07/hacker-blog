@@ -329,7 +329,7 @@ bookRouter.get("/edit/:id", authMiddleware, async (c) => {
       published: true,
       createdAt: true,
       updatedAt: true,
-      // tags re-enabled here once the add_tags migration is applied
+      tags: { select: { id: true, slug: true, name: true } },
     },
   });
 
@@ -417,7 +417,7 @@ bookRouter.get("/bulk", async (c) => {
   const rows = await prisma.post.findMany({
     where: {
       published: true,
-      // tag filter re-enabled once add_tags migration is applied
+      ...(tagSlug && { tags: { some: { slug: tagSlug } } }),
     },
     take: limit + 1,
     ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
@@ -427,12 +427,10 @@ bookRouter.get("/bulk", async (c) => {
       id: true,
       createdAt: true,
       author: { select: { id: true, name: true } },
-      // tags re-enabled here once the add_tags migration is applied
+      tags: { select: { id: true, slug: true, name: true } },
     },
     orderBy: [{ createdAt: "desc" }, { id: "desc" }],
   });
-  // Suppress unused-var warning while tag filter is gated on migration
-  void tagSlug;
 
   const hasMore = rows.length > limit;
   const posts = hasMore ? rows.slice(0, limit) : rows;
