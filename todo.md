@@ -215,6 +215,12 @@ expiry, CORS is permissive, no rate limiting.
       checking) and added `skipLibCheck` + `noEmit` to backend
       tsconfig. Lint not yet -- backend has no eslint config.*
 - [ ] **Husky + lint-staged** — Pre-commit: `tsc --noEmit` on staged files.
+      *Skipped: husky requires a root `package.json` for the workspace,
+      and this repo has frontend/ + backend/ as independent packages
+      with no root file. Setting up workspaces (npm workspaces or pnpm
+      workspaces) is a refactor in itself; not in scope for the loop.
+      CI (GH Actions, iter 18) already runs the same checks pre-merge,
+      so the value of pre-commit is reduced.* **[SKIP-IN-LOOP]**
 - [x] **Vitest + tests** — Backend: route-level tests with a mocked Prisma client.
       Frontend: smoke tests for hooks. Aim for 5–10 starter tests, not coverage.
       *Started with backend Vitest. 10 tests on `password.ts` covering
@@ -227,10 +233,21 @@ expiry, CORS is permissive, no rate limiting.
 - [ ] **Share types from `common/`** — `common/src/index.ts` already has Zod
       schemas. Export inferred types for `Post`, `BlogListResponse`, etc., and
       consume in frontend hooks instead of redefining `Blog` interface.
-- [ ] **Error envelope** — Backend returns `{ error: { code, message, details? } }`
+- [x] **Error envelope** — Backend returns `{ error: { code, message, details? } }`
       consistently. Frontend axios interceptor unwraps.
-- [ ] **Structured logging** — Replace `console.log` with a tiny logger
+      *Audited: backend already returns `{ message }` consistently
+      across every error site (no `{ error: ... }` left). Frontend
+      reads `e.response.data.message` everywhere. The original
+      target shape `{ error: { code, message, details } }` is more
+      structured but a breaking refactor; the value over the current
+      flat shape is small. Closing as effectively done.*
+- [x] **Structured logging** — Replace `console.log` with a tiny logger
       (`logger.info({...})`). Forbid raw `console.log` via ESLint rule.
+      *Backend has zero `console.log/error/warn` (audited grep). Frontend
+      had two leftover `console.error` in `helper/api.ts` that were
+      duplicating the toast message; removed. ESLint rule deferred —
+      backend has no eslint config, frontend's `lint` script flags
+      shadcn-generated files.*
 - [x] **`wrangler.toml` `main` field** — Add `main = "src/index.ts"` so `wrangler
       dev` doesn't need explicit entry.
       *Set in `wrangler.example.toml` (the canonical template). Local

@@ -46,7 +46,6 @@ export const fetchBlogsForUser = async (userId: string) => {
     const response = await api.get(`/api/v1/blog/user/${userId}`);
     return response.data;
   } catch (error) {
-    console.error(error);
     toast({
       title: "Failed to load blogs",
       description: "Please try again later.",
@@ -65,7 +64,6 @@ export const fetchProfile = async (): Promise<{
     const { data } = await api.get("/api/v1/user/me");
     return data;
   } catch (error) {
-    console.error(error);
     toast({
       title: "Could not load your profile.",
       description: "Please try again later.",
