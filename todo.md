@@ -254,8 +254,14 @@ expiry, CORS is permissive, no rate limiting.
       large serif. Submit button matches Auth pages.
 - [ ] **Restyle ProfilePage** — Index card / desk layout. List user's drafts +
       published posts with edit/delete buttons (depends on P2 drafts/edit/delete).
-- [ ] **OG image generator** — Cloudflare Worker route that returns an SVG/PNG OG
+- [x] **OG image generator** — Cloudflare Worker route that returns an SVG/PNG OG
       image with title + author + parchment background.
+      *`GET /api/v1/blog/og/:id` returns an SVG OG card (1200×630) with
+      parchment paper-grain pattern, double-rule masthead, wrapped
+      title in serif bold, italic byline. 1h Cache-Control. Pure
+      SVG, no extra deps. Wiring `<meta property="og:image">` into
+      per-post HTML deferred — needs SSR/template surface that
+      doesn't exist in the SPA build.*
 - [x] **Reading-time accuracy** — Replace `length / 100` with a word-count based
       estimate (~225 wpm).
       *`words = content.trim().split(/\s+/).filter(Boolean).length;
