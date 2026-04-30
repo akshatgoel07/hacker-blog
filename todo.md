@@ -230,9 +230,18 @@ expiry, CORS is permissive, no rate limiting.
       job now runs `npm test` after typecheck. Route-level tests
       (with mocked Prisma) and frontend hook tests deferred to a
       follow-up since they need wrapper/mock setup.*
-- [ ] **Share types from `common/`** — `common/src/index.ts` already has Zod
+- [x] **Share types from `common/`** — `common/src/index.ts` already has Zod
       schemas. Export inferred types for `Post`, `BlogListResponse`, etc., and
       consume in frontend hooks instead of redefining `Blog` interface.
+      *Closed by deletion. The local `common/` package and the published
+      `@100xdevs/medium-common` package both had stale schemas (`name` vs
+      `username`, no length constraints) and neither was imported by
+      backend or frontend any more (backend moved to its own
+      `lib/schemas.ts` in iter 5). Removed `@100xdevs/medium-common` from
+      both package.json files and deleted the unreferenced `common/`
+      directory. Real cross-package type sharing requires npm/pnpm
+      workspaces -- same blocker as Husky -- not in scope for the loop.
+      Frontend response types stay centralized in `hooks/index.ts`.*
 - [x] **Error envelope** — Backend returns `{ error: { code, message, details? } }`
       consistently. Frontend axios interceptor unwraps.
       *Audited: backend already returns `{ message }` consistently
