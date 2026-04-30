@@ -7,6 +7,12 @@ import {
 } from "@tanstack/react-query";
 import { BACKEND_URL } from "../config";
 
+export interface PostTag {
+  id: string;
+  slug: string;
+  name: string;
+}
+
 export interface Blog {
   content: string;
   title: string;
@@ -16,6 +22,7 @@ export interface Blog {
     id?: string;
     name: string;
   };
+  tags?: PostTag[];
 }
 
 export interface PublicUser {
@@ -76,7 +83,8 @@ interface BlogsPage {
   nextCursor: string | null;
 }
 
-export const useBlogs = () => {
+export const useBlogs = (filter?: { tag?: string }) => {
+  const tag = filter?.tag;
   const {
     data,
     isLoading,
@@ -84,12 +92,14 @@ export const useBlogs = () => {
     fetchNextPage,
     hasNextPage,
   } = useInfiniteQuery({
-    queryKey: ["blogs"],
+    queryKey: ["blogs", { tag: tag ?? null }],
     initialPageParam: null as string | null,
     queryFn: async ({ pageParam }) => {
-      const url = pageParam
-        ? `${BACKEND_URL}/api/v1/blog/bulk?cursor=${encodeURIComponent(pageParam)}&limit=${PAGE_SIZE}`
-        : `${BACKEND_URL}/api/v1/blog/bulk?limit=${PAGE_SIZE}`;
+      const params = new URLSearchParams();
+      params.set("limit", String(PAGE_SIZE));
+      if (pageParam) params.set("cursor", pageParam);
+      if (tag) params.set("tag", tag);
+      const url = `${BACKEND_URL}/api/v1/blog/bulk?${params.toString()}`;
       const res = await axios.get(url, { headers: authHeader() });
       const d = res.data || {};
       return {
@@ -113,6 +123,25 @@ export const useBlogs = () => {
   };
 };
 
+export interface TagWithCount {
+  id: string;
+  slug: string;
+  name: string;
+  count: number;
+}
+
+export const useTags = () => {
+  const { data, isLoading } = useQuery({
+    queryKey: ["tags"],
+    queryFn: async () => {
+      const res = await axios.get(`${BACKEND_URL}/api/v1/blog/tags`);
+      return (res.data.tags || []) as TagWithCount[];
+    },
+    staleTime: 5 * 60_000,
+  });
+  return { loading: isLoading, tags: data ?? [] };
+};
+
 export interface DraftPost {
   id: string;
   title: string;
@@ -128,6 +157,7 @@ export interface EditablePost {
   published: boolean;
   createdAt: string;
   updatedAt: string;
+  tags?: PostTag[];
 }
 
 export const useEditablePost = (id: string | undefined) => {

@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
+import type { PostTag } from "../hooks";
+
 interface BlogCardProps {
   authorName: string;
   authorId?: string;
@@ -10,6 +12,7 @@ interface BlogCardProps {
   content: string;
   publishedDate: string;
   id: number;
+  tags?: PostTag[];
 }
 
 const stripMarkdown = (text: string) =>
@@ -26,6 +29,7 @@ export const BlogCard = memo(function BlogCard({
   title,
   content,
   publishedDate,
+  tags,
 }: BlogCardProps) {
   const minutes = useMemo(() => {
     const words = content.trim().split(/\s+/).filter(Boolean).length;
@@ -63,6 +67,19 @@ export const BlogCard = memo(function BlogCard({
           Continue reading →
         </div>
       </Link>
+      {tags && tags.length > 0 && (
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {tags.map((t) => (
+            <Link
+              key={t.id}
+              to={`/blogs?tag=${encodeURIComponent(t.slug)}`}
+              className="font-smallcaps text-[10px] tracking-widest border border-ink-faded text-ink-soft px-2 py-0.5 hover:border-ink hover:text-ink hover:bg-parchment-300 transition-colors"
+            >
+              #{t.slug}
+            </Link>
+          ))}
+        </div>
+      )}
     </article>
   );
 });

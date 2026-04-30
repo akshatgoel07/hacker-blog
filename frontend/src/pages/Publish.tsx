@@ -20,6 +20,8 @@ export const Publish = () => {
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
+  const [tagDraft, setTagDraft] = useState("");
   const [submitting, setSubmitting] = useState<"draft" | "publish" | null>(
     null,
   );
@@ -31,8 +33,32 @@ export const Publish = () => {
     if (existing) {
       setTitle(existing.title);
       setContent(existing.content);
+      setTags(existing.tags?.map((t) => t.slug) ?? []);
     }
   }, [existing]);
+
+  const addTag = (raw: string) => {
+    const slug = raw
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9-]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 40);
+    if (!slug) return;
+    if (tags.includes(slug)) return;
+    if (tags.length >= 8) return;
+    setTags((prev) => [...prev, slug]);
+    setTagDraft("");
+  };
+
+  const onTagKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" || e.key === ",") {
+      e.preventDefault();
+      addTag(tagDraft);
+    } else if (e.key === "Backspace" && !tagDraft && tags.length > 0) {
+      setTags((prev) => prev.slice(0, -1));
+    }
+  };
 
   const handleEditorChange = ({ text }: { text: string }) => {
     setContent(text);
@@ -54,7 +80,7 @@ export const Publish = () => {
       if (isEdit && existing) {
         await axios.put(
           `${BACKEND_URL}/api/v1/blog`,
-          { id: existing.id, title, content, published: publish },
+          { id: existing.id, title, content, published: publish, tags },
           { headers },
         );
         qc.invalidateQueries({ queryKey: ["edit-post", existing.id] });
@@ -65,7 +91,7 @@ export const Publish = () => {
       } else {
         const response = await axios.post(
           `${BACKEND_URL}/api/v1/blog`,
-          { title, content, published: publish },
+          { title, content, published: publish, tags },
           { headers },
         );
         qc.invalidateQueries({ queryKey: ["drafts"] });
@@ -131,6 +157,40 @@ export const Publish = () => {
             onChange={handleEditorChange}
             renderHTML={(text) => mdParser.render(text)}
           />
+        </div>
+
+        <div className="mt-4">
+          <label className="font-smallcaps text-[10px] text-ink-soft tracking-widest block mb-1">
+            Tags ({tags.length}/8)
+          </label>
+          <div className="flex flex-wrap gap-1.5 items-center bg-parchment-100 border border-ink px-2 py-2 min-h-[42px]">
+            {tags.map((slug) => (
+              <span
+                key={slug}
+                className="inline-flex items-center gap-1 font-smallcaps text-[10px] tracking-widest border border-ink text-ink px-2 py-0.5"
+              >
+                #{slug}
+                <button
+                  type="button"
+                  onClick={() => setTags((p) => p.filter((s) => s !== slug))}
+                  aria-label={`Remove ${slug}`}
+                  className="text-ink-faded hover:text-destructive"
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+            <input
+              type="text"
+              value={tagDraft}
+              onChange={(e) => setTagDraft(e.target.value)}
+              onKeyDown={onTagKeyDown}
+              onBlur={() => tagDraft && addTag(tagDraft)}
+              placeholder={tags.length === 0 ? "type a tag, press Enter…" : ""}
+              disabled={isBusy || tags.length >= 8}
+              className="flex-1 min-w-[140px] bg-transparent border-0 font-serif text-sm focus:outline-none disabled:opacity-50"
+            />
+          </div>
         </div>
 
         {error && (

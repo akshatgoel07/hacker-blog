@@ -1,3 +1,4 @@
+import { Link, useSearchParams } from "react-router-dom";
 import { Appbar } from "../components/Appbar";
 import { BlogCard } from "../components/BlogCard";
 import { BlogSkeleton } from "../components/BlogSkeleton";
@@ -5,7 +6,9 @@ import { useBlogs } from "../hooks";
 import { formatPublishedDate } from "../lib/date";
 
 export const Blogs = () => {
-  const { loading, loadingMore, blogs, hasMore, loadMore } = useBlogs();
+  const [params] = useSearchParams();
+  const tag = params.get("tag") ?? undefined;
+  const { loading, loadingMore, blogs, hasMore, loadMore } = useBlogs({ tag });
 
   if (loading) {
     return (
@@ -29,27 +32,52 @@ export const Blogs = () => {
       <Appbar />
       <main className="mx-auto max-w-3xl px-6 md:px-8 py-10">
         <div className="text-center font-smallcaps text-xs text-sepia tracking-[0.4em]">
-          ❦ Today's Edition ❦
+          ❦ {tag ? "Tagged Stories" : "Today's Edition"} ❦
         </div>
         <h2 className="text-center font-display text-3xl md:text-4xl text-ink mt-2">
-          Front Page
+          {tag ? `#${tag}` : "Front Page"}
         </h2>
+        {tag && (
+          <div className="text-center mt-2">
+            <Link
+              to="/blogs"
+              className="font-smallcaps text-[11px] text-sepia hover:text-sepia-dark tracking-widest underline decoration-1 underline-offset-4"
+            >
+              ← Back to all stories
+            </Link>
+          </div>
+        )}
         <hr className="news-rule-double my-6" />
         {!loading && blogs.length === 0 && (
           <div className="text-center py-16">
             <p className="font-display text-2xl text-ink italic mb-2">
-              No issue today.
+              {tag ? `No stories tagged #${tag} yet.` : "No issue today."}
             </p>
             <p className="font-serif text-ink-soft">
-              No stories have been filed yet. Check back tomorrow — or be the
-              first to{" "}
-              <a
-                href="/publish"
-                className="text-sepia underline decoration-1 underline-offset-4 hover:text-sepia-dark"
-              >
-                file one
-              </a>
-              .
+              {tag ? (
+                <>
+                  Try{" "}
+                  <Link
+                    to="/blogs"
+                    className="text-sepia underline decoration-1 underline-offset-4 hover:text-sepia-dark"
+                  >
+                    the front page
+                  </Link>{" "}
+                  for the day's stories.
+                </>
+              ) : (
+                <>
+                  No stories have been filed yet. Check back tomorrow — or be
+                  the first to{" "}
+                  <a
+                    href="/publish"
+                    className="text-sepia underline decoration-1 underline-offset-4 hover:text-sepia-dark"
+                  >
+                    file one
+                  </a>
+                  .
+                </>
+              )}
             </p>
           </div>
         )}
@@ -63,6 +91,7 @@ export const Blogs = () => {
               title={blog.title}
               content={blog.content}
               publishedDate={formatPublishedDate(blog.createdAt)}
+              tags={blog.tags}
             />
           ))}
         </div>

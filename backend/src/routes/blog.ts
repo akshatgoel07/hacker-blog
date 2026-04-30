@@ -318,6 +318,7 @@ bookRouter.get("/edit/:id", authMiddleware, async (c) => {
       published: true,
       createdAt: true,
       updatedAt: true,
+      tags: { select: { id: true, slug: true, name: true } },
     },
   });
 

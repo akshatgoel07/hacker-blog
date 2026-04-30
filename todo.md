@@ -159,8 +159,17 @@ expiry, CORS is permissive, no rate limiting.
       `author.id`. New `/u/:id` page lists the user's filed stories
       via `BlogCard`. Author names on cards + full-article byline are
       now `Link`s to the author page (when `author.id` is present).*
-- [ ] **Tags** — `Tag` model with `@@unique([slug])`, many-to-many to `Post` via
+- [x] **Tags** — `Tag` model with `@@unique([slug])`, many-to-many to `Post` via
       `_PostTags`. Add tag chips to BlogCard. Filter `/bulk?tag=<slug>`. **[L]**
+      *Backend (iter 25): Tag model + implicit join. Migration
+      `20260429173026_add_tags` (`--create-only`; user applies).
+      `slugify`/`upsertTagsByName` helper. POST/PUT accept tags
+      array. New `GET /blog/tags` lists tags with published-post
+      counts. `/bulk?tag=<slug>` filters. Frontend (iter 26): tags
+      on Blog interface, BlogCard renders #slug chips, Blogs page
+      reads `?tag=`, Publish has a chip-style tag input
+      (Enter/comma to add, Backspace to remove last, max 8). Edit
+      mode pre-fills tags from the existing post.*
 - [x] **Comments** — `Comment` model (id, postId, authorId, content, createdAt).
       Threaded later; flat first. Endpoints: `POST /:postId/comments`,
       `GET /:postId/comments`. **[L]**
