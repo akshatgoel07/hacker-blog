@@ -13,6 +13,14 @@ JWT_SECRET = "change-me-to-a-long-random-string"
 # Comma-separated list of origins allowed to call /api/*. If unset, only
 # http://localhost:5173 is allowed. Add your deployed frontend domain here.
 ALLOWED_ORIGINS = "http://localhost:5173"
+# Bearer secret for POST /api/v1/admin/ingest (manual RSS ingest).
+# In production prefer `wrangler secret put INGEST_SECRET`.
+INGEST_SECRET = "change-me-to-a-long-random-string"
+
+# Cloudflare cron triggers. The Worker also fires `scheduled` every 6h
+# and runs the same ingest. Format: standard cron in UTC.
+[triggers]
+crons = ["0 */6 * * *"]
 
 # Optional Cloudflare Workers KV binding used for per-IP rate limiting on
 # /signin and /signup. To turn on:

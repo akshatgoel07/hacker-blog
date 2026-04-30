@@ -50,6 +50,10 @@ model Post {
   bookmarks Bookmark[]
   comments  Comment[]
   tags      Tag[]
+  // externalUrl + externalSource fields gated on
+  // migrations/20260430000000_add_post_external_source being applied.
+  // Once applied, restore those columns + the externalSource index here
+  // and swap title-based dedup in ingest.ts for unique-URL upsert.
 }
 
 model Tag {

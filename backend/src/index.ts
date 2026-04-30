@@ -2,11 +2,13 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { bookRouter } from "./routes/blog";
 import { userRouter } from "./routes/user";
+import { ingestAllFeeds } from "./lib/ingest";
 
 type Bindings = {
   DATABASE_URL: string;
   JWT_SECRET: string;
   ALLOWED_ORIGINS?: string;
+  INGEST_SECRET?: string;
 };
 
 const DEFAULT_ALLOWED_ORIGINS = ["http://localhost:5173"];
@@ -35,4 +37,25 @@ app.use("/api/*", async (c, next) => {
 app.route("/api/v1/blog", bookRouter);
 app.route("/api/v1/user", userRouter);
 
-export default app;
+app.post("/api/v1/admin/ingest", async (c) => {
+  const auth = c.req.header("Authorization") || "";
+  const token = auth.startsWith("Bearer ") ? auth.slice(7) : auth;
+  const expected = c.env?.INGEST_SECRET;
+  if (!expected || token !== expected) {
+    c.status(401);
+    return c.json({ message: "unauthorized" });
+  }
+  const results = await ingestAllFeeds(c.env);
+  return c.json({ results });
+});
+
+export default {
+  fetch: app.fetch,
+  scheduled: async (
+    _event: ScheduledEvent,
+    env: Bindings,
+    ctx: ExecutionContext,
+  ) => {
+    ctx.waitUntil(ingestAllFeeds(env).then(() => undefined));
+  },
+};
